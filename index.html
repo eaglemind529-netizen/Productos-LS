@@ -3,73 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRODUCTOS LS | Mi Cuenta</title>
+    <title>PRODUCTOS LS</title>
+
+    <!-- Estas etiquetas inyectan tu logo y manifiesto sin crear archivos extra -->
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="icon" href="logo.png" type="image/png">
+    <link rel="manifest" href='data:application/json;charset=utf-8,{"name":"PRODUCTOS LS","short_name":"LS","start_url":"index.html","display":"standalone","background_color":"%23000000","theme_color":"%23000000","icons":[{"src":"logo.png","sizes":"512x512","type":"image/png"}]}'>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-    <!-- Pantalla de Login (Oculta por defecto si hay sesión) -->
-    <div id="loginSection" class="min-h-screen flex flex-col items-center justify-center p-6 hidden">
-        <div class="w-full max-w-sm bg-white p-8 rounded-3xl shadow-xl text-center">
-            <div class="w-16 h-16 bg-black rounded-2xl mx-auto flex items-center justify-center text-white font-black text-2xl italic mb-6">LS</div>
-            <h1 class="text-2xl font-black uppercase tracking-tighter mb-2 italic">Bienvenido</h1>
-            <p class="text-gray-500 text-sm mb-8">Inicia sesión para gestionar tus pedidos y cuotas.</p>
-            <button id="loginBtn" class="w-full bg-black text-white py-4 rounded-xl font-black uppercase text-sm tracking-widest">
-                Acceder con Google
-            </button>
-        </div>
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-sm text-center">
+        <!-- Tu logo visual en la página -->
+        <img src="logo.png" alt="Logo PRODUCTOS LS" class="w-24 h-24 mx-auto mb-6 rounded-xl">
+        
+        <h1 class="text-2xl font-bold mb-2">BIENVENIDO</h1>
+        <p class="text-gray-600 mb-8">Inicia sesión para gestionar tus pedidos y cuotas.</p>
+        
+        <button id="loginBtn" class="w-full bg-black text-white py-3 rounded-lg font-semibold">
+            ACCEDER CON GOOGLE
+        </button>
     </div>
 
-    <!-- Panel del Cliente (Oculto hasta que logueen) -->
-    <div id="dashboardSection" class="p-6 hidden">
-        <header class="flex justify-between items-center mb-8">
-            <h2 class="font-black text-xl italic uppercase">Mi Perfil</h2>
-            <button id="logoutBtn" class="text-xs font-bold underline">Salir</button>
-        </header>
-
-        <div class="bg-black text-white p-6 rounded-3xl mb-6 shadow-2xl">
-            <p class="text-xs font-bold uppercase opacity-70 mb-1">Deuda pendiente</p>
-            <h1 class="text-4xl font-black italic">$450.00</h1>
-            <div class="mt-4 flex gap-2 text-[10px] font-bold uppercase bg-white/10 p-2 rounded-lg inline-flex">
-                <span>Próximo pago: 20 de Julio</span>
-            </div>
-        </div>
-
-        <a href="catalogo.html" class="block w-full bg-white border border-gray-200 p-6 rounded-3xl text-center font-black uppercase text-sm tracking-widest hover:border-black transition">
-            Ver Catálogo de Perfumes
-        </a>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
-            authDomain: "apps-d45d6.firebaseapp.com",
-            projectId: "apps-d45d6",
-            storageBucket: "apps-d45d6.firebasestorage.app",
-            messagingSenderId: "502648373937",
-            appId: "1:502648373937:web:8c3beaa2a6c9289a4d9890"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        document.getElementById('loginBtn').onclick = () => signInWithPopup(auth, provider);
-        document.getElementById('logoutBtn').onclick = () => signOut(auth);
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('dashboardSection').classList.remove('hidden');
-            } else {
-                document.getElementById('loginSection').classList.remove('hidden');
-                document.getElementById('dashboardSection').classList.add('hidden');
-            }
-        });
+    <script>
+        // Aquí iría tu lógica de Firebase para el inicio de sesión
+        console.log("App lista. Asegúrate de tener logo.png en la raíz.");
     </script>
 </body>
 </html>
