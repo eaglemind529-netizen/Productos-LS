@@ -10,6 +10,7 @@
     
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="icon" href="logo.png" type="image/png">
+    <link rel="manifest" href='data:application/json;charset=utf-8,{"name":"PRODUCTOS LS","short_name":"LS","start_url":"index.html","display":"standalone","background_color":"%23ffffff","theme_color":"%23000000","icons":[{"src":"logo.png","sizes":"512x512","type":"image/png"}]}'>
 
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f9f9f9; }
@@ -18,70 +19,61 @@
 </head>
 <body class="pb-24">
 
-    <!-- Pantalla de Login -->
-    <div id="loginOverlay" class="fixed inset-0 z-[9999] bg-[#f9f9f9] flex items-center justify-center p-6">
-        <div class="card w-full max-w-sm text-center border border-gray-100">
-            <h2 class="text-xl font-black italic uppercase mb-6">Acceso PRODUCTOS LS</h2>
-            <input type="email" id="loginInput" placeholder="Correo registrado" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 mb-4 text-sm">
-            <button id="loginBtn" class="w-full bg-black text-white py-3 rounded-xl font-black uppercase text-xs italic">Ingresar</button>
-            <p id="errorMsg" class="text-red-500 text-[10px] mt-4 hidden font-bold">Correo no autorizado.</p>
+    <!-- Header -->
+    <header class="p-6 flex justify-between items-center bg-white border-b border-gray-100">
+        <div class="flex items-center gap-3">
+            <!-- Logo ajustado para asegurar carga -->
+            <img src="logo.png" alt="Logo LS" class="w-10 h-10 rounded-xl object-cover shadow-sm bg-black" onerror="this.src='https://ui-avatars.com/api/?name=LS&background=000&color=fff&size=128'">
+            <div>
+                <h1 class="text-[13px] font-black uppercase italic">PRODUCTOS LS</h1>
+                <p class="text-[10px] text-gray-500 font-bold tracking-wider">Bienvenido de nuevo</p>
+            </div>
         </div>
-    </div>
+        <button id="musicToggle" class="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
+            <i data-lucide="music" class="w-5 h-5"></i>
+        </button>
+    </header>
 
-    <!-- Contenido Principal -->
-    <div id="mainContent" class="opacity-0 transition-opacity duration-700">
-        <!-- Header -->
-        <header class="p-6 flex justify-between items-center bg-white border-b border-gray-100">
-            <div class="flex items-center gap-3">
-                <img src="logo.png" class="w-10 h-10 rounded-xl">
-                <div>
-                    <h1 class="text-[13px] font-black uppercase italic">PRODUCTOS LS</h1>
-                    <p class="text-[10px] text-gray-500 font-bold tracking-wider">Bienvenido de nuevo</p>
-                </div>
+    <main class="p-6 space-y-6">
+        <!-- Bloque de Estado -->
+        <div class="card bg-black text-white p-6">
+            <h2 class="text-[11px] font-bold uppercase tracking-widest opacity-60 mb-1">Tu nivel</h2>
+            <p id="userName" class="text-2xl font-black italic uppercase">Cargando...</p>
+            <div class="mt-4 pt-4 border-t border-gray-800 flex justify-between">
+                <div><p class="text-[9px] opacity-50">Deuda Total</p><p id="userDeuda" class="font-bold">$0</p></div>
+                <div><p class="text-[9px] opacity-50">Cuotas</p><p id="userCuotas" class="font-bold">0</p></div>
             </div>
-            <button id="musicToggle" class="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
-                <i data-lucide="music" class="w-5 h-5"></i>
-            </button>
-        </header>
+        </div>
 
-        <main class="p-6 space-y-6">
-            <div class="card bg-black text-white p-6">
-                <h2 class="text-[11px] font-bold uppercase tracking-widest opacity-60 mb-1">Tu nivel</h2>
-                <p class="text-2xl font-black italic uppercase">Usuario Premium LS</p>
-                <div class="mt-4 pt-4 border-t border-gray-800 flex justify-between">
-                    <div><p class="text-[9px] opacity-50">Pedidos activos</p><p class="font-bold">02</p></div>
-                    <div><p class="text-[9px] opacity-50">Próximo pago</p><p class="font-bold">15 MIÉ</p></div>
-                </div>
+        <!-- Acciones Rápidas -->
+        <div class="grid grid-cols-4 gap-4">
+            <a href="catalogo.html" class="flex flex-col items-center gap-2">
+                <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm"><i data-lucide="shopping-bag" class="w-6 h-6"></i></div>
+                <span class="text-[9px] font-bold uppercase">Catálogo</span>
+            </a>
+            <div class="flex flex-col items-center gap-2">
+                <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm"><i data-lucide="credit-card" class="w-6 h-6"></i></div>
+                <span class="text-[9px] font-bold uppercase">Pagos</span>
             </div>
+            <div class="flex flex-col items-center gap-2">
+                <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm"><i data-lucide="gift" class="w-6 h-6"></i></div>
+                <span class="text-[9px] font-bold uppercase">Ofertas</span>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+                <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm"><i data-lucide="user" class="w-6 h-6"></i></div>
+                <span class="text-[9px] font-bold uppercase">Perfil</span>
+            </div>
+        </div>
 
-            <div class="grid grid-cols-4 gap-4">
-                <a href="catalogo.html" class="flex flex-col items-center gap-2">
-                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm"><i data-lucide="shopping-bag" class="w-6 h-6"></i></div>
-                    <span class="text-[9px] font-bold uppercase">Catálogo</span>
-                </a>
-                <div class="flex flex-col items-center gap-2">
-                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm"><i data-lucide="credit-card" class="w-6 h-6"></i></div>
-                    <span class="text-[9px] font-bold uppercase">Pagos</span>
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm"><i data-lucide="gift" class="w-6 h-6"></i></div>
-                    <span class="text-[9px] font-bold uppercase">Ofertas</span>
-                </div>
-                <div class="flex flex-col items-center gap-2">
-                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm"><i data-lucide="user" class="w-6 h-6"></i></div>
-                    <span class="text-[9px] font-bold uppercase">Perfil</span>
-                </div>
+        <!-- Sección de Banner -->
+        <div class="card flex items-center justify-between p-6 bg-gradient-to-r from-gray-100 to-white border border-gray-100">
+            <div>
+                <h3 class="font-black italic uppercase">Nueva Colección</h3>
+                <p class="text-[10px] text-gray-500">Inspirada en piano y snare.</p>
             </div>
-
-            <div class="card flex items-center justify-between p-6 bg-gradient-to-r from-gray-100 to-white border border-gray-100">
-                <div>
-                    <h3 class="font-black italic uppercase">Nueva Colección</h3>
-                    <p class="text-[10px] text-gray-500">Inspirada en piano y snare.</p>
-                </div>
-                <a href="catalogo.html" class="bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase">Ver</a>
-            </div>
-        </main>
-    </div>
+            <a href="catalogo.html" class="bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase">Ver</a>
+        </div>
+    </main>
 
     <!-- Barra inferior fija -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 flex justify-around">
@@ -97,41 +89,33 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        const firebaseConfig = {
+        const db = getFirestore(initializeApp({
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
             authDomain: "apps-d45d6.firebaseapp.com",
             projectId: "apps-d45d6",
             storageBucket: "apps-d45d6.firebasestorage.app",
             messagingSenderId: "502648373937",
             appId: "1:502648373937:web:8c3beaa2a6c9289a4d9890"
-        };
+        }));
 
-        const db = getFirestore(initializeApp(firebaseConfig));
+        async function initDashboard() {
+            const email = localStorage.getItem("userEmail");
+            if (!email) return;
 
-        // Lógica de sesión
-        if (localStorage.getItem("lsAuthorized")) {
-            document.getElementById('loginOverlay').remove();
-            document.getElementById('mainContent').style.opacity = '1';
-        }
-
-        document.getElementById('loginBtn').addEventListener('click', async () => {
-            const email = document.getElementById('loginInput').value.trim();
-            const errorMsg = document.getElementById('errorMsg');
-            
             const q = query(collection(db, "clientes"), where("email", "==", email));
             const snap = await getDocs(q);
 
             if (!snap.empty) {
-                localStorage.setItem("lsAuthorized", "true");
-                document.getElementById('loginOverlay').style.display = 'none';
-                document.getElementById('mainContent').style.opacity = '1';
-            } else {
-                errorMsg.classList.remove('hidden');
+                const c = snap.docs[0].data();
+                document.getElementById('userName').innerText = c.name;
+                document.getElementById('userDeuda').innerText = `$${c.deuda || 0}`;
+                document.getElementById('userCuotas').innerText = c.cuotas || 0;
             }
-        });
+        }
 
-        // Tu script original
         lucide.createIcons();
+        initDashboard();
+
         const audio = document.getElementById('bgMusic');
         const btn = document.getElementById('musicToggle');
         btn.addEventListener('click', () => {
