@@ -16,64 +16,63 @@
 </head>
 <body class="pb-24">
 
+    <!-- Header -->
     <header class="p-6 flex justify-between items-center bg-white border-b border-gray-100">
         <div class="flex items-center gap-3">
-            <img src="logo.png" alt="Logo LS" class="w-10 h-10 rounded-xl object-cover bg-black" onerror="this.src='https://ui-avatars.com/api/?name=LS&background=000&color=fff&size=128'">
+            <div class="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-white font-black italic">LS</div>
             <div>
                 <h1 class="text-[13px] font-black uppercase italic">PRODUCTOS LS</h1>
-                <p class="text-[10px] text-gray-500 font-bold tracking-wider">Bienvenido de nuevo</p>
+                <p class="text-[10px] text-gray-500 font-bold tracking-wider">Dashboard de Cliente</p>
             </div>
         </div>
-        <button id="musicToggle" class="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
-            <i data-lucide="music" class="w-5 h-5"></i>
-        </button>
+        <i data-lucide="music" class="w-5 h-5 text-gray-400"></i>
     </header>
 
     <main class="p-6 space-y-6">
-        <div class="card bg-black text-white p-6">
-            <h2 class="text-[11px] font-bold uppercase tracking-widest opacity-60 mb-1">Tu perfil</h2>
+        <!-- Tarjeta Principal -->
+        <div class="card bg-black text-white p-6 shadow-2xl">
+            <h2 class="text-[10px] uppercase tracking-widest opacity-60 mb-1">Estado de cuenta</h2>
             <p id="userName" class="text-2xl font-black italic uppercase">Cargando...</p>
-            <div class="mt-4 pt-4 border-t border-gray-800 flex justify-between">
-                <div><p class="text-[9px] opacity-50">Deuda Total</p><p id="userDeuda" class="font-bold text-lg">$0</p></div>
-                <div><p class="text-[9px] opacity-50">Cuotas</p><p id="userCuotas" class="font-bold text-lg">0</p></div>
+            <div class="mt-6 pt-4 border-t border-gray-800 flex justify-between">
+                <div><p class="text-[9px] opacity-50">DEUDA TOTAL</p><p id="userDeuda" class="font-bold text-lg">$0</p></div>
+                <div><p class="text-[9px] opacity-50">CUOTAS</p><p id="userCuotas" class="font-bold text-lg">0</p></div>
             </div>
         </div>
 
-        <div class="grid grid-cols-4 gap-4">
-            <a href="catalogo.html" class="flex flex-col items-center gap-2"><div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm"><i data-lucide="shopping-bag" class="w-6 h-6"></i></div><span class="text-[9px] font-bold uppercase">Catálogo</span></a>
-            <button onclick="openPaymentModal()" class="flex flex-col items-center gap-2"><div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm"><i data-lucide="credit-card" class="w-6 h-6"></i></div><span class="text-[9px] font-bold uppercase">Pagos</span></button>
+        <!-- Tabla de Datos -->
+        <div class="card overflow-hidden">
+            <h3 class="font-black uppercase text-[11px] mb-4 text-gray-400 tracking-widest">Información Personal</h3>
+            <table class="w-full text-left">
+                <tbody class="text-xs font-bold divide-y divide-gray-100">
+                    <tr><td class="py-3 text-gray-500">Cédula</td><td id="tableID" class="text-right">-</td></tr>
+                    <tr><td class="py-3 text-gray-500">Teléfono</td><td id="tablePhone" class="text-right">-</td></tr>
+                    <tr><td class="py-3 text-gray-500">Ubicación</td><td id="tableLoc" class="text-right">-</td></tr>
+                    <tr><td class="py-3 text-gray-500">Ocupación</td><td id="tableJob" class="text-right">-</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="grid grid-cols-2 gap-4">
+            <a href="catalogo.html" class="bg-white p-4 rounded-2xl flex flex-col items-center gap-2 border border-gray-100"><i data-lucide="shopping-bag" class="w-5 h-5"></i><span class="text-[9px] font-black uppercase">Catálogo</span></a>
+            <button onclick="document.getElementById('paymentModal').style.display='block'" class="bg-black text-white p-4 rounded-2xl flex flex-col items-center gap-2"><i data-lucide="credit-card" class="w-5 h-5"></i><span class="text-[9px] font-black uppercase">Pagar</span></button>
         </div>
     </main>
 
-    <!-- Modal de Pagos con todos los métodos -->
+    <!-- Modal de Pagos (Donde está toda la información) -->
     <div id="paymentModal">
         <div class="flex justify-between items-center mb-8">
-            <h2 class="font-black italic uppercase text-lg">Estado de Cuenta</h2>
-            <button onclick="closePaymentModal()"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <h2 class="font-black italic uppercase text-lg">Métodos de Pago</h2>
+            <button onclick="document.getElementById('paymentModal').style.display='none'"><i data-lucide="x" class="w-6 h-6"></i></button>
         </div>
-        <div class="bg-black text-white p-6 rounded-3xl mb-6">
-            <p class="text-[10px] opacity-60 uppercase font-bold">Total a cancelar</p>
-            <p id="modalDeuda" class="text-4xl font-black italic mb-4">$0</p>
-            <p id="modalCuotas" class="text-xs opacity-80">Cuotas pendientes: 0</p>
+        <div class="bg-gray-50 p-6 rounded-3xl mb-6 text-center">
+            <p class="text-[10px] uppercase font-bold text-gray-400 mb-1">Monto a cancelar</p>
+            <p id="modalDeuda" class="text-3xl font-black italic">$0</p>
         </div>
-        
-        <h3 class="font-bold uppercase text-[11px] mb-4 text-gray-400">Métodos de pago disponibles</h3>
-        <div class="space-y-4">
-            <!-- Pago Móvil -->
-            <div class="p-4 border rounded-2xl flex items-center gap-4">
-                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><i data-lucide="smartphone" class="w-5 h-5"></i></div>
-                <div><p class="font-bold text-sm">Pago Móvil</p><p class="text-[10px] text-gray-400">Jaddy INC | Banesco / Mercantil</p></div>
-            </div>
-            <!-- Transferencia -->
-            <div class="p-4 border rounded-2xl flex items-center gap-4">
-                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><i data-lucide="landmark" class="w-5 h-5"></i></div>
-                <div><p class="font-bold text-sm">Transferencia Nacional</p><p class="text-[10px] text-gray-400">Cuentas en Divisas y Bs.</p></div>
-            </div>
-            <!-- Zelle -->
-            <div class="p-4 border rounded-2xl flex items-center gap-4">
-                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><i data-lucide="send" class="w-5 h-5"></i></div>
-                <div><p class="font-bold text-sm">Zelle</p><p class="text-[10px] text-gray-400">pago@jaddyinc.com</p></div>
-            </div>
+        <div class="space-y-3">
+            <div class="p-4 border rounded-2xl flex items-center gap-4"><div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><i data-lucide="smartphone" class="w-5 h-5"></i></div><div><p class="font-bold text-sm">Pago Móvil</p><p class="text-[10px] text-gray-400">Jaddy INC | Banesco / Mercantil</p></div></div>
+            <div class="p-4 border rounded-2xl flex items-center gap-4"><div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><i data-lucide="send" class="w-5 h-5"></i></div><div><p class="font-bold text-sm">Zelle</p><p class="text-[10px] text-gray-400">pago@jaddyinc.com</p></div></div>
+            <div class="p-4 border rounded-2xl flex items-center gap-4"><div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><i data-lucide="landmark" class="w-5 h-5"></i></div><div><p class="font-bold text-sm">Transferencia</p><p class="text-[10px] text-gray-400">Cuentas Nacionales</p></div></div>
         </div>
     </div>
 
@@ -90,30 +89,22 @@
             appId: "1:502648373937:web:8c3beaa2a6c9289a4d9890"
         }));
 
-        let clientData = null;
-
         async function init() {
             const snap = await getDocs(collection(db, "clientes"));
             if (!snap.empty) {
-                clientData = snap.docs[0].data();
-                document.getElementById('userName').innerText = clientData.name || "Usuario";
-                document.getElementById('userDeuda').innerText = `$${clientData.deuda || 0}`;
-                document.getElementById('userCuotas').innerText = clientData.cuotas || 0;
+                const c = snap.docs[0].data();
+                document.getElementById('userName').innerText = c.name || "Usuario";
+                document.getElementById('userDeuda').innerText = '$' + (c.deuda || 0);
+                document.getElementById('modalDeuda').innerText = '$' + (c.deuda || 0);
+                document.getElementById('userCuotas').innerText = c.cuotas || 0;
+                document.getElementById('tableID').innerText = c.id || "N/A";
+                document.getElementById('tablePhone').innerText = c.phone || "N/A";
+                document.getElementById('tableLoc').innerText = c.location || "N/A";
+                document.getElementById('tableJob').innerText = c.job || "N/A";
             }
         }
-
-        window.openPaymentModal = () => {
-            if(clientData) {
-                document.getElementById('modalDeuda').innerText = `$${clientData.deuda || 0}`;
-                document.getElementById('modalCuotas').innerText = `Cuotas pendientes: ${clientData.cuotas || 0}`;
-            }
-            document.getElementById('paymentModal').style.display = 'block';
-        };
-
-        window.closePaymentModal = () => document.getElementById('paymentModal').style.display = 'none';
-
-        lucide.createIcons();
         init();
+        lucide.createIcons();
     </script>
 </body>
 </html>
