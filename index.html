@@ -16,7 +16,6 @@
 </head>
 <body class="pb-24">
 
-    <!-- Header -->
     <header class="p-6 flex justify-between items-center bg-white border-b border-gray-100">
         <div class="flex items-center gap-3">
             <img src="logo.png" alt="Logo LS" class="w-10 h-10 rounded-xl object-cover bg-black" onerror="this.src='https://ui-avatars.com/api/?name=LS&background=000&color=fff&size=128'">
@@ -31,9 +30,8 @@
     </header>
 
     <main class="p-6 space-y-6">
-        <!-- Bloque de Estado (Tipo Cashea) -->
         <div class="card bg-black text-white p-6">
-            <h2 class="text-[11px] font-bold uppercase tracking-widest opacity-60 mb-1">Tu nivel</h2>
+            <h2 class="text-[11px] font-bold uppercase tracking-widest opacity-60 mb-1">Tu perfil</h2>
             <p id="userName" class="text-2xl font-black italic uppercase">Cargando...</p>
             <div class="mt-4 pt-4 border-t border-gray-800 flex justify-between">
                 <div><p class="text-[9px] opacity-50">Deuda Total</p><p id="userDeuda" class="font-bold text-lg">$0</p></div>
@@ -41,33 +39,13 @@
             </div>
         </div>
 
-        <!-- Acciones Rápidas -->
         <div class="grid grid-cols-4 gap-4">
             <a href="catalogo.html" class="flex flex-col items-center gap-2"><div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm"><i data-lucide="shopping-bag" class="w-6 h-6"></i></div><span class="text-[9px] font-bold uppercase">Catálogo</span></a>
             <button onclick="openPaymentModal()" class="flex flex-col items-center gap-2"><div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm"><i data-lucide="credit-card" class="w-6 h-6"></i></div><span class="text-[9px] font-bold uppercase">Pagos</span></button>
-            <div class="flex flex-col items-center gap-2"><div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm"><i data-lucide="gift" class="w-6 h-6"></i></div><span class="text-[9px] font-bold uppercase">Ofertas</span></div>
-            <div class="flex flex-col items-center gap-2"><div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm"><i data-lucide="user" class="w-6 h-6"></i></div><span class="text-[9px] font-bold uppercase">Perfil</span></div>
-        </div>
-
-        <!-- Sección de Banner -->
-        <div class="card flex items-center justify-between p-6 bg-gradient-to-r from-gray-100 to-white border border-gray-100">
-            <div>
-                <h3 class="font-black italic uppercase">Nueva Colección</h3>
-                <p class="text-[10px] text-gray-500">Inspirada en piano y snare.</p>
-            </div>
-            <a href="catalogo.html" class="bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase">Ver</a>
         </div>
     </main>
 
-    <!-- Barra inferior fija -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 flex justify-around">
-        <button class="flex flex-col items-center text-black"><i data-lucide="home" class="w-6 h-6"></i><span class="text-[8px] font-bold mt-1">Inicio</span></button>
-        <a href="catalogo.html" class="flex flex-col items-center text-gray-400"><i data-lucide="shopping-bag" class="w-6 h-6"></i><span class="text-[8px] font-bold mt-1">Comprar</span></a>
-        <button onclick="openPaymentModal()" class="flex flex-col items-center text-gray-400"><i data-lucide="credit-card" class="w-6 h-6"></i><span class="text-[8px] font-bold mt-1">Pagos</span></button>
-        <button class="flex flex-col items-center text-gray-400"><i data-lucide="user" class="w-6 h-6"></i><span class="text-[8px] font-bold mt-1">Perfil</span></button>
-    </nav>
-
-    <!-- Modal de Pagos -->
+    <!-- Modal de Pagos con todos los métodos -->
     <div id="paymentModal">
         <div class="flex justify-between items-center mb-8">
             <h2 class="font-black italic uppercase text-lg">Estado de Cuenta</h2>
@@ -78,18 +56,30 @@
             <p id="modalDeuda" class="text-4xl font-black italic mb-4">$0</p>
             <p id="modalCuotas" class="text-xs opacity-80">Cuotas pendientes: 0</p>
         </div>
-        <h3 class="font-bold uppercase text-[11px] mb-4 text-gray-400">Métodos de pago sugeridos</h3>
-        <div class="space-y-3">
-            <div class="p-4 border rounded-2xl flex items-center gap-4"><div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><i data-lucide="smartphone" class="w-5 h-5"></i></div><div><p class="font-bold text-sm">Pago Móvil</p><p class="text-[10px] text-gray-400">Banco Mercantil / Jaddy INC</p></div></div>
-            <div class="p-4 border rounded-2xl flex items-center gap-4"><div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><i data-lucide="landmark" class="w-5 h-5"></i></div><div><p class="font-bold text-sm">Transferencia</p><p class="text-[10px] text-gray-400">Cuenta en divisas / Banco Nacional</p></div></div>
+        
+        <h3 class="font-bold uppercase text-[11px] mb-4 text-gray-400">Métodos de pago disponibles</h3>
+        <div class="space-y-4">
+            <!-- Pago Móvil -->
+            <div class="p-4 border rounded-2xl flex items-center gap-4">
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><i data-lucide="smartphone" class="w-5 h-5"></i></div>
+                <div><p class="font-bold text-sm">Pago Móvil</p><p class="text-[10px] text-gray-400">Jaddy INC | Banesco / Mercantil</p></div>
+            </div>
+            <!-- Transferencia -->
+            <div class="p-4 border rounded-2xl flex items-center gap-4">
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><i data-lucide="landmark" class="w-5 h-5"></i></div>
+                <div><p class="font-bold text-sm">Transferencia Nacional</p><p class="text-[10px] text-gray-400">Cuentas en Divisas y Bs.</p></div>
+            </div>
+            <!-- Zelle -->
+            <div class="p-4 border rounded-2xl flex items-center gap-4">
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><i data-lucide="send" class="w-5 h-5"></i></div>
+                <div><p class="font-bold text-sm">Zelle</p><p class="text-[10px] text-gray-400">pago@jaddyinc.com</p></div>
+            </div>
         </div>
     </div>
 
-    <audio id="bgMusic" loop><source src="tu-cancion.mp3" type="audio/mpeg"></audio>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const db = getFirestore(initializeApp({
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
@@ -100,37 +90,30 @@
             appId: "1:502648373937:web:8c3beaa2a6c9289a4d9890"
         }));
 
-        let userData = {};
+        let clientData = null;
 
-        async function cargarDatos() {
-            const email = localStorage.getItem("userEmail");
-            if (!email) { window.location.href = "login.html"; return; }
-            const q = query(collection(db, "clientes"), where("email", "==", email));
-            const snap = await getDocs(q);
+        async function init() {
+            const snap = await getDocs(collection(db, "clientes"));
             if (!snap.empty) {
-                userData = snap.docs[0].data();
-                document.getElementById('userName').innerText = userData.name;
-                document.getElementById('userDeuda').innerText = `$${userData.deuda || 0}`;
-                document.getElementById('userCuotas').innerText = userData.cuotas || 0;
+                clientData = snap.docs[0].data();
+                document.getElementById('userName').innerText = clientData.name || "Usuario";
+                document.getElementById('userDeuda').innerText = `$${clientData.deuda || 0}`;
+                document.getElementById('userCuotas').innerText = clientData.cuotas || 0;
             }
         }
 
         window.openPaymentModal = () => {
-            document.getElementById('modalDeuda').innerText = `$${userData.deuda || 0}`;
-            document.getElementById('modalCuotas').innerText = `Cuotas pendientes: ${userData.cuotas || 0}`;
+            if(clientData) {
+                document.getElementById('modalDeuda').innerText = `$${clientData.deuda || 0}`;
+                document.getElementById('modalCuotas').innerText = `Cuotas pendientes: ${clientData.cuotas || 0}`;
+            }
             document.getElementById('paymentModal').style.display = 'block';
         };
 
         window.closePaymentModal = () => document.getElementById('paymentModal').style.display = 'none';
 
         lucide.createIcons();
-        cargarDatos();
-
-        const audio = document.getElementById('bgMusic');
-        const btn = document.getElementById('musicToggle');
-        btn.addEventListener('click', () => {
-            audio.paused ? (audio.play(), btn.innerHTML = '<i data-lucide="pause" class="w-5 h-5"></i>') : (audio.pause(), btn.innerHTML = '<i data-lucide="music" class="w-5 h-5"></i>');
-        });
+        init();
     </script>
 </body>
 </html>
