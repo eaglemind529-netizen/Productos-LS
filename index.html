@@ -41,7 +41,15 @@
             <p id="userName" class="text-2xl font-black italic uppercase">Cargando...</p>
             <div class="mt-6 pt-4 border-t border-gray-800 flex justify-between">
                 <div><p class="text-[9px] opacity-50">DEUDA TOTAL</p><p id="userDeuda" class="font-bold text-lg">$0</p></div>
-                <div><p class="text-[9px] opacity-50">CUOTAS</p><p id="userCuotas" class="font-bold text-lg">0</p></div>
+                <div><p class="text-[9px] opacity-50">CUOTAS</p><p id="userCuotasCount" class="font-bold text-lg">0</p></div>
+            </div>
+        </div>
+
+        <!-- Nueva sección: Cronograma de Cuotas -->
+        <div class="card">
+            <h3 class="text-[11px] font-black uppercase tracking-widest mb-4">Cronograma de Cuotas</h3>
+            <div id="cronogramaList" class="space-y-3">
+                <!-- Se inyecta dinámicamente -->
             </div>
         </div>
 
@@ -51,14 +59,12 @@
             <i data-lucide="chevron-down" class="w-4 h-4"></i>
         </button>
 
-        <!-- Tabla de Datos (Oculta inicialmente) -->
         <div id="dataCard" class="card hidden overflow-hidden">
             <table class="w-full text-left">
                 <tbody class="text-xs font-bold divide-y divide-gray-100">
                     <tr><td class="py-3 text-gray-500">Cédula</td><td id="tableID" class="text-right">-</td></tr>
                     <tr><td class="py-3 text-gray-500">Teléfono</td><td id="tablePhone" class="text-right">-</td></tr>
                     <tr><td class="py-3 text-gray-500">Ubicación</td><td id="tableLoc" class="text-right">-</td></tr>
-                    <tr><td class="py-3 text-gray-500">Ocupación</td><td id="tableJob" class="text-right">-</td></tr>
                 </tbody>
             </table>
         </div>
@@ -69,7 +75,6 @@
         </div>
     </main>
 
-    <!-- Modal de Pagos -->
     <div id="paymentModal">
         <div class="flex justify-between items-center mb-8">
             <h2 class="font-black italic uppercase text-lg">Datos para Pago</h2>
@@ -95,50 +100,43 @@
             appId: "1:502648373937:web:8c3beaa2a6c9289a4d9890"
         }));
 
-        window.toggleData = () => {
-            const card = document.getElementById('dataCard');
-            card.classList.toggle('hidden');
-        };
-
-        window.copyToClipboard = (text) => {
-            navigator.clipboard.writeText(text).then(() => alert("¡Copiado!"));
-        };
+        window.toggleData = () => document.getElementById('dataCard').classList.toggle('hidden');
 
         async function init() {
             const snap = await getDocs(collection(db, "clientes"));
             if (!snap.empty) {
                 const c = snap.docs[0].data();
-                const clientId = snap.docs[0].id;
                 document.getElementById('userName').innerText = c.name || "Usuario";
                 document.getElementById('userDeuda').innerText = '$' + (c.deuda || 0);
                 document.getElementById('modalDeuda').innerText = '$' + (c.deuda || 0);
-                document.getElementById('userCuotas').innerText = c.cuotas || 0;
-                document.getElementById('tableID').innerText = c.id || "N/A";
-                document.getElementById('tablePhone').innerText = c.phone || "N/A";
-                document.getElementById('tableLoc').innerText = c.location || "N/A";
-                document.getElementById('tableJob').innerText = c.job || "N/A";
+                document.getElementById('tableID').innerText = c.id || "-";
+                document.getElementById('tablePhone').innerText = c.phone || "-";
+                document.getElementById('tableLoc').innerText = c.location || "-";
 
-                onSnapshot(query(collection(db, "notificaciones"), where("clientId", "==", clientId)), (ns) => {
-                    if(!ns.empty) {
-                        document.getElementById('notifContainer').classList.remove('hidden');
-                        document.getElementById('notifList').innerHTML = ns.docs.map(n => `<p class="mb-1">• ${n.data().mensaje}</p>`).join('');
-                    }
-                });
+                // Lógica para mostrar las 3 cuotas activas
+                const cuotas = [
+                    { f: c.f1, p: c.p1 }, { f: c.f2, p: c.p2 }, { f: c.f3, p: c.p3 }
+                ].filter(x => x.p);
+                
+                document.getElementById('userCuotasCount').innerText = cuotas.length;
+                document.getElementById('cronogramaList').innerHTML = cuotas.map((item, i) => `
+                    <div class="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span class="text-[11px] font-bold text-gray-500">Cuota ${i+1} (${item.f || '---'})</span>
+                        <span class="text-[11px] font-black italic">$${item.p}</span>
+                    </div>
+                `).join('');
             }
 
             const pSnap = await getDoc(doc(db, "config", "metodo_pago"));
             if (pSnap.exists()) {
                 const p = pSnap.data();
-                const fullText = `Banco: ${p.banco}\nCédula: ${p.id}\nTeléfono: ${p.telefono}`;
                 document.getElementById('paymentMethods').innerHTML = `
                     <div class="p-5 border-2 border-black rounded-2xl bg-white shadow-sm">
-                        <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Datos Bancarios</p>
                         <div class="space-y-2 mb-4 text-sm font-bold">
                             <p><span class="text-gray-500">Banco:</span> ${p.banco}</p>
                             <p><span class="text-gray-500">Cédula:</span> ${p.id}</p>
                             <p><span class="text-gray-500">Teléfono:</span> ${p.telefono}</p>
                         </div>
-                        <button onclick="copyToClipboard('${fullText}')" class="w-full bg-black text-white font-black text-[11px] uppercase py-3 rounded-xl tracking-widest">Copiar Datos</button>
                     </div>
                 `;
             }
