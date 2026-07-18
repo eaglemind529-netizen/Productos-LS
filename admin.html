@@ -2,75 +2,71 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel | PRODUCTOS LS</title>
+    <title>Panel Administrativo</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-gray-100 p-6 pb-20">
+<body class="bg-gray-100 p-6">
     <div class="max-w-4xl mx-auto">
         <header class="flex justify-between items-center mb-8">
-            <h1 class="text-2xl font-black italic">PANEL DE CONTROL ADMIN</h1>
-            <button onclick="toggleForm()" class="bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase">Nuevo Cliente +</button>
+            <h1 class="text-2xl font-black italic">PANEL DE CONTROL</h1>
+            <button id="btnToggleForm" class="bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase">Nuevo Cliente +</button>
         </header>
 
-        <!-- Configuración de Método de Pago -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8">
-            <h2 class="font-black uppercase mb-4 italic text-sm text-black">Configurar Método de Pago (Datos Bancarios)</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <input type="text" id="gID" placeholder="Cédula/RIF" class="p-3 border rounded-lg text-sm">
-                <input type="text" id="gPhone" placeholder="Teléfono" class="p-3 border rounded-lg text-sm">
-                <input type="text" id="gBank" placeholder="Banco" class="p-3 border rounded-lg text-sm">
-                <button onclick="saveGlobalPayment()" class="md:col-span-3 bg-black text-white py-3 rounded-lg font-bold text-xs uppercase">Guardar Datos de Pago</button>
+        <!-- SECCIÓN DE PAGOS -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-200 mb-8">
+            <h2 class="font-black uppercase mb-4 text-sm text-black">Datos Bancarios</h2>
+            <div id="paymentContent" class="p-4 bg-amber-50 border border-amber-200 rounded-xl mb-4">
+                <p id="paymentDetails" class="text-xs font-bold text-black">Cargando...</p>
             </div>
-            <div id="paymentDisplay" class="hidden p-4 bg-amber-50 border border-amber-200 rounded-xl relative">
-                <p class="text-[10px] font-black uppercase text-amber-800 mb-1">Método de Pago Activo</p>
-                <div id="paymentDetails" class="text-xs font-bold text-black space-y-1"></div>
-                <button onclick="editPayment()" class="absolute top-4 right-4 bg-amber-200 text-amber-900 px-3 py-1 rounded-lg text-[9px] font-black uppercase">Editar</button>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="text" id="gID" placeholder="Cédula/RIF" class="p-2 border rounded-lg text-sm">
+                <input type="text" id="gPhone" placeholder="Teléfono" class="p-2 border rounded-lg text-sm">
+                <input type="text" id="gBank" placeholder="Banco" class="p-2 border rounded-lg text-sm">
+                <button id="btnSavePayment" class="md:col-span-3 bg-black text-white py-2 rounded-lg font-bold text-xs uppercase">Guardar Datos</button>
             </div>
         </div>
 
-        <!-- Formulario Cliente -->
-        <div id="clientForm" class="hidden bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8">
-            <h2 id="formTitle" class="font-black uppercase mb-4 italic">Registrar Cliente</h2>
-            <input type="hidden" id="editIdDoc">
+        <!-- FORMULARIO NUEVO CLIENTE -->
+        <div id="clientForm" class="hidden bg-white p-6 rounded-2xl border border-gray-200 mb-8">
+            <h2 class="font-black uppercase mb-4">Registrar Nuevo Cliente</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" id="cName" placeholder="Nombre completo" class="md:col-span-2 p-3 border rounded-lg text-sm">
-                <input type="email" id="cEmail" placeholder="Correo electrónico" class="md:col-span-2 p-3 border rounded-lg text-sm">
-                <input type="text" id="cID" placeholder="Cédula" class="p-3 border rounded-lg text-sm font-bold">
-                <input type="tel" id="cPhone" placeholder="Teléfono" class="p-3 border rounded-lg text-sm font-bold">
-                <input type="text" id="cBank" placeholder="Banco" class="md:col-span-2 p-3 border rounded-lg text-sm font-bold">
-                <input type="text" id="cLocation" placeholder="Ubicación" class="p-3 border rounded-lg text-sm">
-                <input type="text" id="cJob" placeholder="Ocupación" class="p-3 border rounded-lg text-sm">
-                <button onclick="saveClient()" class="md:col-span-2 bg-black text-white py-4 rounded-lg font-black text-xs uppercase tracking-widest mt-2">Guardar Cambios</button>
+                <input type="text" id="cName" placeholder="Nombre" class="p-3 border rounded-lg text-sm">
+                <input type="email" id="cEmail" placeholder="Correo electrónico (Acceso)" class="p-3 border rounded-lg text-sm">
+                <input type="text" id="cID" placeholder="Cédula" class="p-3 border rounded-lg text-sm">
+                <input type="text" id="cPhone" placeholder="Teléfono" class="p-3 border rounded-lg text-sm">
+                <input type="text" id="cLoc" placeholder="Ubicación" class="p-3 border rounded-lg text-sm">
+                <button id="btnSaveClient" class="md:col-span-2 bg-black text-white py-4 rounded-lg font-black text-xs uppercase">Registrar</button>
             </div>
         </div>
 
-        <div class="grid gap-4" id="adminGrid"></div>
+        <!-- GRILLA DE CLIENTES -->
+        <div id="adminGrid" class="grid gap-4"></div>
     </div>
 
-    <!-- Modal Detalles -->
-    <div id="detailModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-6 z-50">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-sm">
-            <h2 id="mName" class="font-black italic uppercase text-lg mb-4">---</h2>
-            <div id="mContent" class="py-2 space-y-2 text-sm border-b pb-4"></div>
+    <!-- MODAL DE DETALLES -->
+    <div id="detailModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl">
+            <h2 id="mName" class="font-black italic uppercase text-lg mb-2">---</h2>
+            <div id="mInfo" class="text-xs text-gray-600 mb-4 p-3 bg-gray-50 rounded-lg"></div>
             
-            <div class="mt-4">
-                <p class="text-[10px] font-bold uppercase text-gray-500 mb-2">Notificación</p>
-                <textarea id="mNotification" class="w-full p-2 border rounded-lg text-xs" placeholder="Mensaje..."></textarea>
-                <button id="mSendNotifBtn" class="w-full mt-2 py-2 bg-black text-white rounded-lg text-xs font-bold uppercase">Enviar Notificación</button>
+            <div class="space-y-3 border-t pt-4">
+                <input type="number" id="mDeuda" placeholder="Deuda Total ($)" class="w-full p-2 border rounded-lg text-sm">
+                <div class="grid grid-cols-1 gap-2">
+                    <div class="flex gap-2"><input type="date" id="mFecha1" class="w-2/3 p-2 border rounded-lg text-xs"><input type="number" id="mPago1" placeholder="C1" class="w-1/3 p-2 border rounded-lg text-xs"></div>
+                    <div class="flex gap-2"><input type="date" id="mFecha2" class="w-2/3 p-2 border rounded-lg text-xs"><input type="number" id="mPago2" placeholder="C2" class="w-1/3 p-2 border rounded-lg text-xs"></div>
+                    <div class="flex gap-2"><input type="date" id="mFecha3" class="w-2/3 p-2 border rounded-lg text-xs"><input type="number" id="mPago3" placeholder="C3" class="w-1/3 p-2 border rounded-lg text-xs"></div>
+                </div>
             </div>
-
             <div class="flex gap-2 mt-6">
-                <button onclick="prepareEdit()" class="w-full py-2 bg-blue-600 text-white rounded-lg text-xs font-bold uppercase">Editar</button>
-                <button onclick="deleteClient()" class="w-full py-2 bg-red-600 text-white rounded-lg text-xs font-bold uppercase">Eliminar</button>
+                <button id="btnSaveFinance" class="flex-1 py-3 bg-green-600 text-white rounded-lg text-xs font-bold uppercase">Guardar</button>
+                <button id="btnCloseModal" class="flex-1 py-3 bg-gray-200 rounded-lg text-xs font-bold uppercase">Cerrar</button>
             </div>
-            <button onclick="closeDetails()" class="w-full mt-2 py-2 bg-gray-200 rounded-lg text-xs font-bold uppercase">Cerrar</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, getDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const db = getFirestore(initializeApp({
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
@@ -81,69 +77,74 @@
             appId: "1:502648373937:web:8c3beaa2a6c9289a4d9890"
         }));
 
-        let currentClient = null;
+        window.currentClient = null;
 
-        window.toggleForm = () => {
-            document.getElementById('editIdDoc').value = "";
-            document.getElementById('clientForm').classList.toggle('hidden');
+        // Abrir/Cerrar
+        document.getElementById('btnToggleForm').addEventListener('click', () => document.getElementById('clientForm').classList.toggle('hidden'));
+        document.getElementById('btnCloseModal').addEventListener('click', () => document.getElementById('detailModal').classList.add('hidden'));
+
+        // Abrir Modal globalmente
+        window.openModal = (c) => {
+            window.currentClient = c;
+            document.getElementById('mName').innerText = c.name;
+            document.getElementById('mInfo').innerHTML = `<b>Email:</b> ${c.email}<br><b>Cédula:</b> ${c.id}<br><b>Tel:</b> ${c.phone}<br><b>Loc:</b> ${c.location}`;
+            document.getElementById('mDeuda').value = c.deuda || "";
+            document.getElementById('mFecha1').value = c.f1 || ""; document.getElementById('mPago1').value = c.p1 || "";
+            document.getElementById('mFecha2').value = c.f2 || ""; document.getElementById('mPago2').value = c.p2 || "";
+            document.getElementById('mFecha3').value = c.f3 || ""; document.getElementById('mPago3').value = c.p3 || "";
+            document.getElementById('detailModal').classList.remove('hidden');
         };
 
-        window.saveClient = async () => {
-            const idDoc = document.getElementById('editIdDoc').value;
-            const data = {
+        document.getElementById('btnSaveClient').addEventListener('click', async () => {
+            await addDoc(collection(db, "clientes"), {
                 name: document.getElementById('cName').value,
                 email: document.getElementById('cEmail').value,
                 id: document.getElementById('cID').value,
                 phone: document.getElementById('cPhone').value,
-                bank: document.getElementById('cBank').value,
-                location: document.getElementById('cLocation').value,
-                job: document.getElementById('cJob').value
-            };
+                location: document.getElementById('cLoc').value
+            });
+            alert("Cliente registrado");
+            document.getElementById('clientForm').classList.add('hidden');
+        });
 
-            if(idDoc) {
-                await updateDoc(doc(db, "clientes", idDoc), data);
-                alert("Cliente actualizado.");
-            } else {
-                await addDoc(collection(db, "clientes"), { ...data, createdAt: new Date().toISOString() });
-                alert("Cliente registrado.");
+        document.getElementById('btnSaveFinance').addEventListener('click', async () => {
+            if(!window.currentClient) return;
+            await updateDoc(doc(db, "clientes", window.currentClient.idDoc), {
+                deuda: document.getElementById('mDeuda').value,
+                f1: document.getElementById('mFecha1').value, p1: document.getElementById('mPago1').value,
+                f2: document.getElementById('mFecha2').value, p2: document.getElementById('mPago2').value,
+                f3: document.getElementById('mFecha3').value, p3: document.getElementById('mPago3').value
+            });
+            alert("Cambios guardados");
+            document.getElementById('detailModal').classList.add('hidden');
+        });
+
+        document.getElementById('btnSavePayment').addEventListener('click', async () => {
+            await setDoc(doc(db, "config", "metodo_pago"), {
+                id: document.getElementById('gID').value,
+                telefono: document.getElementById('gPhone').value,
+                banco: document.getElementById('gBank').value
+            });
+            alert("Datos guardados");
+        });
+
+        onSnapshot(doc(db, "config", "metodo_pago"), (d) => {
+            if(d.exists()) {
+                const p = d.data();
+                document.getElementById('paymentDetails').innerText = `RIF: ${p.id} | Telf: ${p.telefono} | Banco: ${p.banco}`;
             }
-            toggleForm();
-        };
-
-        window.prepareEdit = () => {
-            document.getElementById('editIdDoc').value = currentClient.idDoc;
-            document.getElementById('cName').value = currentClient.name;
-            document.getElementById('cEmail').value = currentClient.email;
-            document.getElementById('cID').value = currentClient.id;
-            document.getElementById('cPhone').value = currentClient.phone;
-            document.getElementById('cBank').value = currentClient.bank;
-            document.getElementById('cLocation').value = currentClient.location;
-            document.getElementById('cJob').value = currentClient.job;
-            closeDetails();
-            document.getElementById('clientForm').classList.remove('hidden');
-        };
-
-        window.deleteClient = async () => {
-            if(confirm("¿Seguro que quieres borrar a este cliente de Higuerote?")) {
-                await deleteDoc(doc(db, "clientes", currentClient.idDoc));
-                closeDetails();
-            }
-        };
-
-        window.closeDetails = () => document.getElementById('detailModal').classList.add('hidden');
-        window.openDetails = (c) => {
-            currentClient = c;
-            document.getElementById('mName').innerText = c.name;
-            document.getElementById('mContent').innerHTML = `<p><b>Cédula:</b> ${c.id}</p><p><b>Tel:</b> ${c.phone}</p><p><b>Banco:</b> ${c.bank}</p>`;
-            document.getElementById('detailModal').classList.remove('hidden');
-        };
+        });
 
         onSnapshot(collection(db, "clientes"), (snap) => {
-            const clients = snap.docs.map(doc => ({ idDoc: doc.id, ...doc.data() }));
-            document.getElementById('adminGrid').innerHTML = clients.map(c => `
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 cursor-pointer" onclick="openDetails(${JSON.stringify(c).replace(/"/g, '&quot;')})">
-                    <h3 class="font-black italic">${c.name}</h3>
-                </div>`).join('');
+            document.getElementById('adminGrid').innerHTML = snap.docs.map(doc => {
+                const c = { idDoc: doc.id, ...doc.data() };
+                return `
+                    <div class="bg-white p-6 rounded-2xl border border-gray-200 cursor-pointer shadow-sm hover:border-black transition-all" onclick="openModal(${JSON.stringify(c).replace(/"/g, '&quot;')})">
+                        <h3 class="font-black uppercase">${c.name}</h3>
+                        <p class="text-xs text-blue-600 font-bold">${c.email}</p>
+                    </div>
+                `;
+            }).join('');
         });
     </script>
 </body>
