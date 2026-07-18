@@ -29,6 +29,12 @@
     </header>
 
     <main class="p-6 space-y-6">
+        <!-- Notificaciones -->
+        <div id="notifContainer" class="hidden card bg-blue-50 border border-blue-100">
+            <h3 class="font-black text-[9px] uppercase text-blue-800 tracking-widest mb-2">Notificaciones recientes</h3>
+            <div id="notifList" class="text-xs font-bold text-blue-900"></div>
+        </div>
+
         <!-- Tarjeta Principal -->
         <div class="card bg-black text-white p-6 shadow-2xl">
             <h2 class="text-[10px] uppercase tracking-widest opacity-60 mb-1">Estado de cuenta</h2>
@@ -39,9 +45,14 @@
             </div>
         </div>
 
-        <!-- Tabla de Datos -->
-        <div class="card overflow-hidden">
-            <h3 class="font-black uppercase text-[11px] mb-4 text-gray-400 tracking-widest">Información Personal</h3>
+        <!-- Botón para revelar datos -->
+        <button onclick="toggleData()" id="toggleDataBtn" class="w-full card bg-white border border-gray-100 flex items-center justify-between">
+            <span class="text-[11px] font-black uppercase tracking-widest">Mis datos personales</span>
+            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Tabla de Datos (Oculta inicialmente) -->
+        <div id="dataCard" class="card hidden overflow-hidden">
             <table class="w-full text-left">
                 <tbody class="text-xs font-bold divide-y divide-gray-100">
                     <tr><td class="py-3 text-gray-500">Cédula</td><td id="tableID" class="text-right">-</td></tr>
@@ -52,33 +63,28 @@
             </table>
         </div>
 
-        <!-- Botones de Acción -->
         <div class="grid grid-cols-2 gap-4">
             <a href="catalogo.html" class="bg-white p-4 rounded-2xl flex flex-col items-center gap-2 border border-gray-100"><i data-lucide="shopping-bag" class="w-5 h-5"></i><span class="text-[9px] font-black uppercase">Catálogo</span></a>
             <button onclick="document.getElementById('paymentModal').style.display='block'" class="bg-black text-white p-4 rounded-2xl flex flex-col items-center gap-2"><i data-lucide="credit-card" class="w-5 h-5"></i><span class="text-[9px] font-black uppercase">Pagar</span></button>
         </div>
     </main>
 
-    <!-- Modal de Pagos (Donde está toda la información) -->
+    <!-- Modal de Pagos -->
     <div id="paymentModal">
         <div class="flex justify-between items-center mb-8">
-            <h2 class="font-black italic uppercase text-lg">Métodos de Pago</h2>
+            <h2 class="font-black italic uppercase text-lg">Datos para Pago</h2>
             <button onclick="document.getElementById('paymentModal').style.display='none'"><i data-lucide="x" class="w-6 h-6"></i></button>
         </div>
         <div class="bg-gray-50 p-6 rounded-3xl mb-6 text-center">
             <p class="text-[10px] uppercase font-bold text-gray-400 mb-1">Monto a cancelar</p>
             <p id="modalDeuda" class="text-3xl font-black italic">$0</p>
         </div>
-        <div class="space-y-3">
-            <div class="p-4 border rounded-2xl flex items-center gap-4"><div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><i data-lucide="smartphone" class="w-5 h-5"></i></div><div><p class="font-bold text-sm">Pago Móvil</p><p class="text-[10px] text-gray-400">Jaddy INC | Banesco / Mercantil</p></div></div>
-            <div class="p-4 border rounded-2xl flex items-center gap-4"><div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><i data-lucide="send" class="w-5 h-5"></i></div><div><p class="font-bold text-sm">Zelle</p><p class="text-[10px] text-gray-400">pago@jaddyinc.com</p></div></div>
-            <div class="p-4 border rounded-2xl flex items-center gap-4"><div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center"><i data-lucide="landmark" class="w-5 h-5"></i></div><div><p class="font-bold text-sm">Transferencia</p><p class="text-[10px] text-gray-400">Cuentas Nacionales</p></div></div>
-        </div>
+        <div id="paymentMethods" class="space-y-4"></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, getDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const db = getFirestore(initializeApp({
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
@@ -89,10 +95,20 @@
             appId: "1:502648373937:web:8c3beaa2a6c9289a4d9890"
         }));
 
+        window.toggleData = () => {
+            const card = document.getElementById('dataCard');
+            card.classList.toggle('hidden');
+        };
+
+        window.copyToClipboard = (text) => {
+            navigator.clipboard.writeText(text).then(() => alert("¡Copiado!"));
+        };
+
         async function init() {
             const snap = await getDocs(collection(db, "clientes"));
             if (!snap.empty) {
                 const c = snap.docs[0].data();
+                const clientId = snap.docs[0].id;
                 document.getElementById('userName').innerText = c.name || "Usuario";
                 document.getElementById('userDeuda').innerText = '$' + (c.deuda || 0);
                 document.getElementById('modalDeuda').innerText = '$' + (c.deuda || 0);
@@ -101,6 +117,30 @@
                 document.getElementById('tablePhone').innerText = c.phone || "N/A";
                 document.getElementById('tableLoc').innerText = c.location || "N/A";
                 document.getElementById('tableJob').innerText = c.job || "N/A";
+
+                onSnapshot(query(collection(db, "notificaciones"), where("clientId", "==", clientId)), (ns) => {
+                    if(!ns.empty) {
+                        document.getElementById('notifContainer').classList.remove('hidden');
+                        document.getElementById('notifList').innerHTML = ns.docs.map(n => `<p class="mb-1">• ${n.data().mensaje}</p>`).join('');
+                    }
+                });
+            }
+
+            const pSnap = await getDoc(doc(db, "config", "metodo_pago"));
+            if (pSnap.exists()) {
+                const p = pSnap.data();
+                const fullText = `Banco: ${p.banco}\nCédula: ${p.id}\nTeléfono: ${p.telefono}`;
+                document.getElementById('paymentMethods').innerHTML = `
+                    <div class="p-5 border-2 border-black rounded-2xl bg-white shadow-sm">
+                        <p class="text-[10px] font-black uppercase text-gray-400 mb-2">Datos Bancarios</p>
+                        <div class="space-y-2 mb-4 text-sm font-bold">
+                            <p><span class="text-gray-500">Banco:</span> ${p.banco}</p>
+                            <p><span class="text-gray-500">Cédula:</span> ${p.id}</p>
+                            <p><span class="text-gray-500">Teléfono:</span> ${p.telefono}</p>
+                        </div>
+                        <button onclick="copyToClipboard('${fullText}')" class="w-full bg-black text-white font-black text-[11px] uppercase py-3 rounded-xl tracking-widest">Copiar Datos</button>
+                    </div>
+                `;
             }
         }
         init();
