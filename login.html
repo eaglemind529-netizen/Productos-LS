@@ -21,7 +21,7 @@
         <div class="text-center space-y-2">
             <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-white font-black italic mx-auto text-lg shadow-xl">LS</div>
             <h1 class="text-xl font-black uppercase italic tracking-wider">PRODUCTOS LS</h1>
-            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Portal de Autenticación</p>
+            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Portal de Autenticación Multitenant</p>
         </div>
 
         <!-- Notificación / Error Toast -->
@@ -149,7 +149,8 @@
             const password = document.getElementById('loginPassword').value;
 
             try {
-                await signInWithEmailAndPassword(auth, email, password);
+                const cred = await signInWithEmailAndPassword(auth, email, password);
+                localStorage.setItem('currentOwnerUid', cred.user.uid);
                 showToast("¡Inicio de sesión exitoso! Redirigiendo...", false);
                 setTimeout(() => window.location.href = "index.html", 1000);
             } catch (error) {
@@ -168,6 +169,7 @@
                 const cred = await createUserWithEmailAndPassword(auth, email, password);
                 const user = cred.user;
 
+                // Guardar perfil vinculado al UID
                 await setDoc(doc(db, "users", user.uid), {
                     name: name,
                     businessName: business,
@@ -175,11 +177,13 @@
                     createdAt: new Date().toISOString()
                 });
 
+                // Configuración de negocio activa
                 await setDoc(doc(db, "config", "negocio"), {
                     name: business,
                     ownerId: user.uid
                 }, { merge: true });
 
+                localStorage.setItem('currentOwnerUid', user.uid);
                 showToast("¡Cuenta y negocio creados con éxito!", false);
                 setTimeout(() => window.location.href = "index.html", 1000);
             } catch (error) {
@@ -213,6 +217,7 @@
                     }, { merge: true });
                 }
 
+                localStorage.setItem('currentOwnerUid', user.uid);
                 showToast("¡Acceso con Google exitoso!", false);
                 setTimeout(() => window.location.href = "index.html", 1000);
             } catch (error) {
