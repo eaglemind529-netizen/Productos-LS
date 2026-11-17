@@ -27,6 +27,7 @@
             padding: 15px;
             text-align: center;
             position: relative;
+            cursor: pointer;
         }
 
         .badge-count {
@@ -77,10 +78,10 @@
             border-bottom: 1px solid #f0f0f0;
             background: #fff;
             overflow-x: auto;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
         
-        .modal-filter-bar::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+        .modal-filter-bar::-webkit-scrollbar { display: none; }
 
         .filter-btn {
             padding: 8px 14px;
@@ -180,6 +181,7 @@
             background: #f0f0f0;
             border-radius: 50%;
             padding: 8px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -191,9 +193,12 @@
             <div id="headerLogoInitials" class="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold text-xs italic">LS</div>
             <h1 id="headerCompanyName" class="font-black text-[13px] uppercase tracking-tighter italic">PRODUCTOS LS</h1>
         </div>
-        <div class="relative">
-            <i data-lucide="shopping-bag" class="w-6 h-6"></i>
-            <div id="cartCountBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</div>
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 hover:text-black">Volver</a>
+            <div class="relative">
+                <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                <div id="cartCountBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</div>
+            </div>
         </div>
     </header>
 
@@ -243,7 +248,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getFirestore, collection, doc, onSnapshot, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
@@ -255,6 +261,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
         let products = [];
@@ -263,23 +270,46 @@
         let currentModalFilter = 'todos';
         let currentCompanyName = "PRODUCTOS LS";
 
-        // Sincronizar nombre de la empresa desde Firestore
+        // Validación de sesión activa (Multi-tenant)
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                // Si no hay sesión, redirigir al login
+                window.location.href = "login.html";
+                return;
+            }
+
+            // Cargar datos del negocio del usuario logueado
+            try {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists() && userDoc.data().businessName) {
+                    currentCompanyName = userDoc.data().businessName;
+                    document.getElementById('headerCompanyName').innerText = currentCompanyName;
+                    updateInitials(currentCompanyName);
+                }
+            } catch (e) {
+                console.error("Error al cargar perfil:", e);
+            }
+        });
+
+        function updateInitials(name) {
+            const words = name.trim().split(/\s+/);
+            let initials = "LS";
+            if (words.length >= 2) {
+                initials = (words[0][0] + words[1][0]).toUpperCase();
+            } else if (words.length === 1 && words[0].length >= 2) {
+                initials = words[0].substring(0, 2).toUpperCase();
+            }
+            document.getElementById('headerLogoInitials').innerText = initials;
+        }
+
+        // Sincronizar nombre global de la empresa si existe en config
         onSnapshot(doc(db, "config", "negocio"), (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 if (data.name) {
                     currentCompanyName = data.name;
                     document.getElementById('headerCompanyName').innerText = currentCompanyName;
-                    
-                    // Generar iniciales automáticas
-                    const words = currentCompanyName.trim().split(/\s+/);
-                    let initials = "LS";
-                    if (words.length >= 2) {
-                        initials = (words[0][0] + words[1][0]).toUpperCase();
-                    } else if (words.length === 1 && words[0].length >= 2) {
-                        initials = words[0].substring(0, 2).toUpperCase();
-                    }
-                    document.getElementById('headerLogoInitials').innerText = initials;
+                    updateInitials(currentCompanyName);
                 }
             }
         });
@@ -289,7 +319,7 @@
             return url.trim().replace('dl=0', 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
         };
 
-        // Escuchar cambios en la base de datos
+        // Escuchar cambios en la base de datos de productos
         onSnapshot(query(collection(db, "perfumes"), orderBy("name", "asc")), (snap) => {
             products = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderGrid();
@@ -341,7 +371,7 @@
             renderVariants();
         };
 
-        // Alternar selección de variante (tocar para añadir, tocar para quitar)
+        // Alternar selección de variante
         window.toggleVariant = (vId) => {
             const variant = currentProduct.variants.find(v => (v.id || (v.title + v.size)) === vId);
             const existingIndex = cart.findIndex(item => item.pId === currentProduct.id && item.vId === vId);
@@ -392,7 +422,7 @@
             `}).join('');
         }
 
-        // Actualizar la barra negra de abajo
+        // Actualizar la barra inferior de carrito
         function updateCartUI() {
             const total = cart.reduce((sum, item) => sum + item.price, 0);
             const count = cart.length;
@@ -418,12 +448,12 @@
 
             const targetPhone = cart[0].wa;
             
-            let message = `¡Hola! 👋 Quisiera comprar estos perfumes en *${currentCompanyName}*:\n\n`;
+            let message = `¡Hola! 👋 Quisiera comprar estos productos en *${currentCompanyName}*:\n\n`;
             
             cart.forEach((item, i) => {
                 message += `🔹 *${item.pName}*\n`;
-                message += `   Variante: ${item.vName} (${item.size})\n`;
-                message += `   Precio: $${item.price}\n\n`;
+                message += `    Variante: ${item.vName} (${item.size})\n`;
+                message += `    Precio: $${item.price}\n\n`;
             });
 
             const total = cart.reduce((sum, item) => sum + item.price, 0);
