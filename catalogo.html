@@ -194,7 +194,7 @@
             <h1 id="headerCompanyName" class="font-black text-[13px] uppercase tracking-tighter italic">PRODUCTOS LS</h1>
         </div>
         <div class="flex items-center gap-3">
-            <a href="index.html" class="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 hover:text-black">Panel</a>
+            <a href="admin.html" class="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 hover:text-black">Panel Admin</a>
             <div class="relative">
                 <i data-lucide="shopping-bag" class="w-6 h-6"></i>
                 <div id="cartCountBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</div>
@@ -249,7 +249,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, query, orderBy, getDoc, where } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, query, getDoc, where } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
@@ -270,14 +270,13 @@
         let currentModalFilter = 'todos';
         let currentCompanyName = "PRODUCTOS LS";
 
-        // Validación de sesión activa y aislamiento de datos por usuario (Multi-tenant)
+        // Validación de sesión y aislamiento por ownerId
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = "login.html";
                 return;
             }
 
-            // Cargar nombre del negocio de este usuario específico
             try {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists() && userDoc.data().businessName) {
@@ -289,7 +288,6 @@
                 console.error("Error al cargar perfil:", e);
             }
 
-            // Escuchar únicamente los productos que pertenecen a este usuario logueado
             setupCatalogListener(user.uid);
         });
 
@@ -309,12 +307,14 @@
             return url.trim().replace('dl=0', 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
         };
 
-        // Cargar productos filtrados por ownerId
+        // Consulta filtrada sin orderBy para evitar errores de índices en Firestore
         function setupCatalogListener(uid) {
-            const q = query(collection(db, "perfumes"), where("ownerId", "==", uid), orderBy("name", "asc"));
+            const q = query(collection(db, "perfumes"), where("ownerId", "==", uid));
             
             onSnapshot(q, (snap) => {
                 products = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Ordenar localmente por nombre alfabéticamente
+                products.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
                 renderGrid();
             });
         }
