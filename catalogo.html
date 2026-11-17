@@ -194,7 +194,7 @@
             <h1 id="headerCompanyName" class="font-black text-[13px] uppercase tracking-tighter italic">PRODUCTOS LS</h1>
         </div>
         <div class="flex items-center gap-3">
-            <a href="admin.html" class="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 hover:text-black">Panel Admin</a>
+            <a href="admin.html" class="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 hover:text-black">Ir a Admin</a>
             <div class="relative">
                 <i data-lucide="shopping-bag" class="w-6 h-6"></i>
                 <div id="cartCountBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</div>
@@ -270,7 +270,7 @@
         let currentModalFilter = 'todos';
         let currentCompanyName = "PRODUCTOS LS";
 
-        // Validación de sesión y aislamiento por ownerId
+        // Validación de sesión activa y carga de datos desde admin.html / Firestore
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = "login.html";
@@ -288,6 +288,7 @@
                 console.error("Error al cargar perfil:", e);
             }
 
+            // Escuchar los productos creados en admin.html filtrados por el ownerId de este usuario
             setupCatalogListener(user.uid);
         });
 
@@ -307,21 +308,26 @@
             return url.trim().replace('dl=0', 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
         };
 
-        // Consulta filtrada sin orderBy para evitar errores de índices en Firestore
+        // Sincronizar en tiempo real con la colección de perfumes que alimenta admin.html
         function setupCatalogListener(uid) {
             const q = query(collection(db, "perfumes"), where("ownerId", "==", uid));
             
             onSnapshot(q, (snap) => {
                 products = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // Ordenar localmente por nombre alfabéticamente
+                // Ordenar alfabéticamente
                 products.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
                 renderGrid();
             });
         }
 
-        // Dibujar el catálogo principal
+        // Dibujar el catálogo principal con los productos de admin.html
         function renderGrid() {
             const grid = document.getElementById('catalogGrid');
+            if (products.length === 0) {
+                grid.innerHTML = `<div class="col-span-2 text-center py-12 text-gray-400 text-xs uppercase font-bold">No hay productos registrados en el administrador aún.</div>`;
+                return;
+            }
+
             grid.innerHTML = products.map(p => {
                 const itemsFromThisProduct = cart.filter(item => item.pId === p.id).length;
                 return `
@@ -329,15 +335,16 @@
                     ${itemsFromThisProduct > 0 ? `<div class="badge-count">${itemsFromThisProduct}</div>` : ''}
                     <img src="${cleanUrl(p.img)}">
                     <h3 class="text-[9px] font-black uppercase italic tracking-tighter mb-1 truncate px-2">${p.name}</h3>
-                    <p class="text-[11px] font-bold text-black">$${p.priceNew || '---'}</p>
+                    <p class="text-[11px] font-bold text-black">$${p.priceNew || (p.variants && p.variants[0] ? p.variants[0].priceNew : '---')}</p>
                 </div>
             `}).join('');
             lucide.createIcons();
         }
 
-        // Abrir detalles de producto
+        // Abrir detalles de producto y sus variantes
         window.openModal = (id) => {
             currentProduct = products.find(p => p.id === id);
+            if (!currentProduct) return;
             document.getElementById('modalTitle').innerText = currentProduct.name;
             const modal = document.getElementById('productModal');
             modal.style.display = 'flex';
@@ -368,6 +375,7 @@
         // Alternar selección de variante
         window.toggleVariant = (vId) => {
             const variant = currentProduct.variants.find(v => (v.id || (v.title + v.size)) === vId);
+            if (!variant) return;
             const existingIndex = cart.findIndex(item => item.pId === currentProduct.id && item.vId === vId);
 
             if (existingIndex > -1) {
@@ -387,13 +395,18 @@
             updateCartUI();
         };
 
-        // Dibujar las variantes en el modal
+        // Dibujar las variantes creadas en admin.html
         function renderVariants() {
             const container = document.getElementById('variantsContainer');
             let variants = currentProduct.variants || [];
             
             if (currentModalFilter !== 'todos') {
-                variants = variants.filter(v => (v.gender || '').toLowerCase() === currentModalFilter);
+                variants = variants.filter(v => (v.gender || '').toLowerCase() === currentModalFilter.toLowerCase());
+            }
+
+            if (variants.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-gray-400 py-6 uppercase font-bold">No hay variantes en esta categoría</p>`;
+                return;
             }
 
             container.innerHTML = variants.map(v => {
@@ -406,7 +419,7 @@
                     <div class="flex-1">
                         <h4 class="font-black italic uppercase text-[10px] leading-tight">${v.title}</h4>
                         <div class="flex gap-2 items-center mt-0.5">
-                            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">${v.size}</span>
+                            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">${v.size || ''}</span>
                             <span class="text-[8px] font-extrabold px-1.5 py-0.5 bg-gray-100 rounded text-gray-600 uppercase">${v.gender || 'Unisex'}</span>
                         </div>
                         <p class="text-sm font-black mt-1">$${v.priceNew}</p>
@@ -436,7 +449,7 @@
             lucide.createIcons();
         }
 
-        // Enviar pedido consolidado por WhatsApp
+        // Enviar pedido consolidado por WhatsApp al número configurado en admin.html
         window.sendOrder = () => {
             if (cart.length === 0) return;
 
@@ -444,7 +457,7 @@
             
             let message = `¡Hola! 👋 Quisiera comprar estos productos en *${currentCompanyName}*:\n\n`;
             
-            cart.forEach((item, i) => {
+            cart.forEach((item) => {
                 message += `🔹 *${item.pName}*\n`;
                 message += `    Variante: ${item.vName} (${item.size})\n`;
                 message += `    Precio: $${item.price}\n\n`;
