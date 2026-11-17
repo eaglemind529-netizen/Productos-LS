@@ -1,72 +1,64 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Panel Administrativo</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 p-6">
-    <div class="max-w-4xl mx-auto">
-        <header class="flex justify-between items-center mb-8">
-            <h1 class="text-2xl font-black italic">PANEL DE CONTROL</h1>
-            <button id="btnToggleForm" class="bg-black text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase">Nuevo Cliente +</button>
-        </header>
-
-        <!-- SECCIÓN DE PAGOS -->
-        <div class="bg-white p-6 rounded-2xl border border-gray-200 mb-8">
-            <h2 class="font-black uppercase mb-4 text-sm text-black">Datos Bancarios</h2>
-            <div id="paymentContent" class="p-4 bg-amber-50 border border-amber-200 rounded-xl mb-4">
-                <p id="paymentDetails" class="text-xs font-bold text-black">Cargando...</p>
+font-black italic">LS</div>
+            <div>
+                <h1 class="text-[13px] font-black uppercase italic">PRODUCTOS LS</h1>
+                <p class="text-[10px] text-gray-500 font-bold tracking-wider">Catálogo & Gestión</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="text" id="gID" placeholder="Cédula/RIF" class="p-2 border rounded-lg text-sm">
-                <input type="text" id="gPhone" placeholder="Teléfono" class="p-2 border rounded-lg text-sm">
-                <input type="text" id="gBank" placeholder="Banco" class="p-2 border rounded-lg text-sm">
-                <button id="btnSavePayment" class="md:col-span-3 bg-black text-white py-2 rounded-lg font-bold text-xs uppercase">Guardar Datos</button>
+        </div>
+        <i data-lucide="music" class="w-5 h-5 text-gray-400"></i>
+    </header>
+
+    <main class="p-6 space-y-6">
+        <!-- Banner / Portada Promocional -->
+        <div class="card bg-black text-white p-8 shadow-2xl relative overflow-hidden">
+            <div class="relative z-10">
+                <span class="inline-block px-3 py-1 bg-white/10 rounded-full text-[9px] font-black uppercase tracking-widest mb-4">
+                    Colección Oficial
+                </span>
+                <h2 class="text-3xl font-black italic uppercase leading-tight mb-2">
+                    Explora Nuestro Catálogo
+                </h2>
+                <p class="text-xs text-gray-300 font-normal leading-relaxed mb-6 max-w-md">
+                    Descubre la selección exclusiva de productos disponibles. Calidad, estilo y atención personalizada en un solo lugar.
+                </p>
+                <a href="catalogo.html" class="inline-flex items-center gap-2 bg-white text-black px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider hover:bg-gray-100 transition">
+                    <span>Ver Catálogo Completo</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
             </div>
         </div>
 
-        <!-- FORMULARIO NUEVO CLIENTE -->
-        <div id="clientForm" class="hidden bg-white p-6 rounded-2xl border border-gray-200 mb-8">
-            <h2 class="font-black uppercase mb-4">Registrar Nuevo Cliente</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" id="cName" placeholder="Nombre" class="p-3 border rounded-lg text-sm">
-                <input type="email" id="cEmail" placeholder="Correo electrónico (Acceso)" class="p-3 border rounded-lg text-sm">
-                <input type="text" id="cID" placeholder="Cédula" class="p-3 border rounded-lg text-sm">
-                <input type="text" id="cPhone" placeholder="Teléfono" class="p-3 border rounded-lg text-sm">
-                <input type="text" id="cLoc" placeholder="Ubicación" class="p-3 border rounded-lg text-sm">
-                <button id="btnSaveClient" class="md:col-span-2 bg-black text-white py-4 rounded-lg font-black text-xs uppercase">Registrar</button>
+        <!-- Panel de Accesos para Dueños del Catálogo -->
+        <div class="card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-[11px] font-black uppercase tracking-widest">Accesos Rápidos</h3>
+                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Administración</span>
             </div>
-        </div>
-
-        <!-- GRILLA DE CLIENTES -->
-        <div id="adminGrid" class="grid gap-4"></div>
-    </div>
-
-    <!-- MODAL DE DETALLES -->
-    <div id="detailModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white p-6 rounded-2xl w-full max-w-md shadow-2xl">
-            <h2 id="mName" class="font-black italic uppercase text-lg mb-2">---</h2>
-            <div id="mInfo" class="text-xs text-gray-600 mb-4 p-3 bg-gray-50 rounded-lg"></div>
             
-            <div class="space-y-3 border-t pt-4">
-                <input type="number" id="mDeuda" placeholder="Deuda Total ($)" class="w-full p-2 border rounded-lg text-sm">
-                <div class="grid grid-cols-1 gap-2">
-                    <div class="flex gap-2"><input type="date" id="mFecha1" class="w-2/3 p-2 border rounded-lg text-xs"><input type="number" id="mPago1" placeholder="C1" class="w-1/3 p-2 border rounded-lg text-xs"></div>
-                    <div class="flex gap-2"><input type="date" id="mFecha2" class="w-2/3 p-2 border rounded-lg text-xs"><input type="number" id="mPago2" placeholder="C2" class="w-1/3 p-2 border rounded-lg text-xs"></div>
-                    <div class="flex gap-2"><input type="date" id="mFecha3" class="w-2/3 p-2 border rounded-lg text-xs"><input type="number" id="mPago3" placeholder="C3" class="w-1/3 p-2 border rounded-lg text-xs"></div>
-                </div>
-            </div>
-            <div class="flex gap-2 mt-6">
-                <button id="btnSaveFinance" class="flex-1 py-3 bg-green-600 text-white rounded-lg text-xs font-bold uppercase">Guardar</button>
-                <button id="btnCloseModal" class="flex-1 py-3 bg-gray-200 rounded-lg text-xs font-bold uppercase">Cerrar</button>
-            </div>
-        </div>
-    </div>
+            <!-- Cuadrícula preparada para accesos actuales y futuros -->
+            <div id="adminAccessGrid" class="grid grid-cols-2 gap-4">
+                <a href="catalogo.html" class="bg-gray-50 hover:bg-gray-100 transition p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border border-gray-100 text-center">
+                    <div class="w-10 h-10 bg-black text-white rounded-xl flex items-center justify-center">
+                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-[10px] font-black uppercase tracking-wider mt-1">Catálogo</span>
+                    <span class="text-[9px] text-gray-500 font-bold">Vista pública</span>
+                </a>
+
+                <!-- Acceso a admin.html -->
+                <a href="admin.html" class="bg-black hover:bg-gray-900 text-white transition p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border border-black text-center shadow-sm">
+                    <div class="w-10 h-10 bg-white text-black rounded-xl flex items-center justify-center">
+                        <i data-lucide="settings" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-[10px] font-black uppercase tracking-wider mt-1">Panel Admin</span>
+                    <span class="text-[9px] text-gray-300 font-bold">Gestionar</span>
+                </a>
+
+                <!-- Espacio reservado para futuros accesos -->
+                <div class="bg-gray-50/60 p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border border-dashed border-gray-200 text-center">
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const db = getFirestore(initializeApp({
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
@@ -77,76 +69,7 @@
             appId: "1:502648373937:web:8c3beaa2a6c9289a4d9890"
         }));
 
-        window.currentClient = null;
-
-        // Abrir/Cerrar
-        document.getElementById('btnToggleForm').addEventListener('click', () => document.getElementById('clientForm').classList.toggle('hidden'));
-        document.getElementById('btnCloseModal').addEventListener('click', () => document.getElementById('detailModal').classList.add('hidden'));
-
-        // Abrir Modal globalmente
-        window.openModal = (c) => {
-            window.currentClient = c;
-            document.getElementById('mName').innerText = c.name;
-            document.getElementById('mInfo').innerHTML = `<b>Email:</b> ${c.email}<br><b>Cédula:</b> ${c.id}<br><b>Tel:</b> ${c.phone}<br><b>Loc:</b> ${c.location}`;
-            document.getElementById('mDeuda').value = c.deuda || "";
-            document.getElementById('mFecha1').value = c.f1 || ""; document.getElementById('mPago1').value = c.p1 || "";
-            document.getElementById('mFecha2').value = c.f2 || ""; document.getElementById('mPago2').value = c.p2 || "";
-            document.getElementById('mFecha3').value = c.f3 || ""; document.getElementById('mPago3').value = c.p3 || "";
-            document.getElementById('detailModal').classList.remove('hidden');
-        };
-
-        document.getElementById('btnSaveClient').addEventListener('click', async () => {
-            await addDoc(collection(db, "clientes"), {
-                name: document.getElementById('cName').value,
-                email: document.getElementById('cEmail').value,
-                id: document.getElementById('cID').value,
-                phone: document.getElementById('cPhone').value,
-                location: document.getElementById('cLoc').value
-            });
-            alert("Cliente registrado");
-            document.getElementById('clientForm').classList.add('hidden');
-        });
-
-        document.getElementById('btnSaveFinance').addEventListener('click', async () => {
-            if(!window.currentClient) return;
-            await updateDoc(doc(db, "clientes", window.currentClient.idDoc), {
-                deuda: document.getElementById('mDeuda').value,
-                f1: document.getElementById('mFecha1').value, p1: document.getElementById('mPago1').value,
-                f2: document.getElementById('mFecha2').value, p2: document.getElementById('mPago2').value,
-                f3: document.getElementById('mFecha3').value, p3: document.getElementById('mPago3').value
-            });
-            alert("Cambios guardados");
-            document.getElementById('detailModal').classList.add('hidden');
-        });
-
-        document.getElementById('btnSavePayment').addEventListener('click', async () => {
-            await setDoc(doc(db, "config", "metodo_pago"), {
-                id: document.getElementById('gID').value,
-                telefono: document.getElementById('gPhone').value,
-                banco: document.getElementById('gBank').value
-            });
-            alert("Datos guardados");
-        });
-
-        onSnapshot(doc(db, "config", "metodo_pago"), (d) => {
-            if(d.exists()) {
-                const p = d.data();
-                document.getElementById('paymentDetails').innerText = `RIF: ${p.id} | Telf: ${p.telefono} | Banco: ${p.banco}`;
-            }
-        });
-
-        onSnapshot(collection(db, "clientes"), (snap) => {
-            document.getElementById('adminGrid').innerHTML = snap.docs.map(doc => {
-                const c = { idDoc: doc.id, ...doc.data() };
-                return `
-                    <div class="bg-white p-6 rounded-2xl border border-gray-200 cursor-pointer shadow-sm hover:border-black transition-all" onclick="openModal(${JSON.stringify(c).replace(/"/g, '&quot;')})">
-                        <h3 class="font-black uppercase">${c.name}</h3>
-                        <p class="text-xs text-blue-600 font-bold">${c.email}</p>
-                    </div>
-                `;
-            }).join('');
-        });
+        lucide.createIcons();
     </script>
 </body>
 </html>
-
