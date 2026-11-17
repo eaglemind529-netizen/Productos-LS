@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -189,8 +188,8 @@
     <!-- Header -->
     <header class="p-5 bg-white border-b border-gray-100 flex justify-between items-center sticky top-0 z-40">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold text-xs italic">LS</div>
-            <h1 class="font-black text-[13px] uppercase tracking-tighter italic">PRODUCTOS LS</h1>
+            <div id="headerLogoInitials" class="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold text-xs italic">LS</div>
+            <h1 id="headerCompanyName" class="font-black text-[13px] uppercase tracking-tighter italic">PRODUCTOS LS</h1>
         </div>
         <div class="relative">
             <i data-lucide="shopping-bag" class="w-6 h-6"></i>
@@ -244,7 +243,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
@@ -262,6 +261,28 @@
         let cart = []; 
         let currentProduct = null;
         let currentModalFilter = 'todos';
+        let currentCompanyName = "PRODUCTOS LS";
+
+        // Sincronizar nombre de la empresa desde Firestore
+        onSnapshot(doc(db, "config", "negocio"), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.name) {
+                    currentCompanyName = data.name;
+                    document.getElementById('headerCompanyName').innerText = currentCompanyName;
+                    
+                    // Generar iniciales automáticas
+                    const words = currentCompanyName.trim().split(/\s+/);
+                    let initials = "LS";
+                    if (words.length >= 2) {
+                        initials = (words[0][0] + words[1][0]).toUpperCase();
+                    } else if (words.length === 1 && words[0].length >= 2) {
+                        initials = words[0].substring(0, 2).toUpperCase();
+                    }
+                    document.getElementById('headerLogoInitials').innerText = initials;
+                }
+            }
+        });
 
         const cleanUrl = (url) => {
             if (!url) return "https://via.placeholder.com/400?text=PRODUCTOS+LS";
@@ -395,10 +416,9 @@
         window.sendOrder = () => {
             if (cart.length === 0) return;
 
-            // Tomamos el número de WhatsApp del primer ítem del carrito
             const targetPhone = cart[0].wa;
             
-            let message = `¡Hola! 👋 Quisiera comprar estos perfumes en *PRODUCTOS LS*:\n\n`;
+            let message = `¡Hola! 👋 Quisiera comprar estos perfumes en *${currentCompanyName}*:\n\n`;
             
             cart.forEach((item, i) => {
                 message += `🔹 *${item.pName}*\n`;
