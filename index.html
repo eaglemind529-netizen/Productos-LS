@@ -151,7 +151,6 @@
                         return;
                     }
                 }
-                // Fallback a config general o modo de prueba
                 const businessDoc = await getDoc(doc(db, "config", "negocio"));
                 if (businessDoc.exists() && businessDoc.data().name) {
                     updateBranding(businessDoc.data().name);
