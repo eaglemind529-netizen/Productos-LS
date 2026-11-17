@@ -51,12 +51,12 @@
                     <i data-lucide="layers" class="text-black"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-black italic uppercase tracking-tighter text-white leading-none">Jaddy INC</h1>
+                    <h1 id="headerCompanyName" class="text-xl font-black italic uppercase tracking-tighter text-white leading-none">Jaddy INC</h1>
                     <p class="text-[9px] font-bold text-amber-500 uppercase tracking-[0.3em]">Gestión de Variantes</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <!-- Botón acceso a Clientes añadido aquí -->
+                <!-- Botón acceso a Clientes -->
                 <a href="admin.html" class="bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 px-4 py-2 rounded-xl flex items-center gap-2 transition">
                     <i data-lucide="users" class="w-4 h-4 text-amber-500"></i>
                     <span class="text-[9px] font-black uppercase tracking-widest text-amber-500 italic">Clientes</span>
@@ -69,8 +69,21 @@
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Formulario Base -->
+            <!-- Formulario Base y Configuración de Empresa -->
             <div class="lg:col-span-4 space-y-6">
+                <!-- Panel de Configuración de Empresa -->
+                <div class="glass-panel p-6 rounded-[2rem]">
+                    <h2 class="text-xs font-black uppercase text-amber-500 mb-4 flex items-center gap-2 italic">
+                        <i data-lucide="building" class="w-4 h-4"></i> Nombre de la Empresa
+                    </h2>
+                    <div class="space-y-3">
+                        <input type="text" id="companyNameInput" placeholder="Nombre de tu empresa" class="w-full">
+                        <button type="button" onclick="saveCompanyName()" class="w-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/20 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition">
+                            Actualizar Nombre
+                        </button>
+                    </div>
+                </div>
+
                 <div class="glass-panel p-6 rounded-[2rem]">
                     <h2 class="text-xs font-black uppercase text-amber-500 mb-6 flex items-center gap-2 italic">
                         <i data-lucide="package" class="w-4 h-4"></i> Producto Principal
@@ -163,7 +176,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, deleteDoc, doc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, deleteDoc, doc, updateDoc, setDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
@@ -176,6 +189,30 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // Sincronizar nombre de la empresa en tiempo real desde Firestore
+        onSnapshot(doc(db, "config", "negocio"), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.name) {
+                    document.getElementById('headerCompanyName').innerText = data.name;
+                    const input = document.getElementById('companyNameInput');
+                    if (input && document.activeElement !== input) {
+                        input.value = data.name;
+                    }
+                }
+            }
+        });
+
+        window.saveCompanyName = async () => {
+            const name = document.getElementById('companyNameInput').value.trim();
+            if (!name) return;
+            try {
+                await setDoc(doc(db, "config", "negocio"), { name: name }, { merge: true });
+            } catch (e) {
+                console.error("Error guardando nombre de empresa:", e);
+            }
+        };
 
         const formatImg = (url) => {
             if (!url) return "https://via.placeholder.com/400?text=Jaddy+INC";
@@ -321,10 +358,8 @@
         };
 
         window.deleteMain = async (id) => {
-            if(confirm("¿Eliminar este producto y todas sus variantes?")) {
-                await deleteDoc(doc(db, "perfumes", id));
-                resetAll();
-            }
+            await deleteDoc(doc(db, "perfumes", id));
+            resetAll();
         };
 
         window.closeVariants = () => {
