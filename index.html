@@ -1,4 +1,24 @@
-font-black italic">LS</div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PRODUCTOS LS | Catálogo & Gestión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f9f9f9; }
+        .card { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body class="pb-24">
+
+    <!-- Header -->
+    <header class="p-6 flex justify-between items-center bg-white border-b border-gray-100">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-white font-black italic">LS</div>
             <div>
                 <h1 class="text-[13px] font-black uppercase italic">PRODUCTOS LS</h1>
                 <p class="text-[10px] text-gray-500 font-bold tracking-wider">Catálogo & Gestión</p>
@@ -44,17 +64,17 @@ font-black italic">LS</div>
                     <span class="text-[9px] text-gray-500 font-bold">Vista pública</span>
                 </a>
 
-                <!-- Acceso a admin.html -->
-                <a href="admin.html" class="bg-black hover:bg-gray-900 text-white transition p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border border-black text-center shadow-sm">
-                    <div class="w-10 h-10 bg-white text-black rounded-xl flex items-center justify-center">
-                        <i data-lucide="settings" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-[10px] font-black uppercase tracking-wider mt-1">Panel Admin</span>
-                    <span class="text-[9px] text-gray-300 font-bold">Gestionar</span>
-                </a>
-
                 <!-- Espacio reservado para futuros accesos -->
                 <div class="bg-gray-50/60 p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border border-dashed border-gray-200 text-center">
+                    <div class="w-10 h-10 bg-white text-gray-300 rounded-xl flex items-center justify-center border border-gray-100">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-gray-400 mt-1">Próximamente</span>
+                    <span class="text-[9px] text-gray-400 font-bold">Nuevo acceso</span>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
