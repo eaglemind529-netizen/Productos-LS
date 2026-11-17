@@ -52,15 +52,19 @@
                 </div>
                 <div>
                     <h1 id="headerCompanyName" class="text-xl font-black italic uppercase tracking-tighter text-white leading-none">Jaddy INC</h1>
-                    <p class="text-[9px] font-bold text-amber-500 uppercase tracking-[0.3em]">Gestión de Variantes</p>
+                    <p id="headerUserEmail" class="text-[9px] font-bold text-amber-500 uppercase tracking-[0.2em]">Cargando sesión...</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <!-- Botón acceso a Clientes -->
-                <a href="admin.html" class="bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 px-4 py-2 rounded-xl flex items-center gap-2 transition">
-                    <i data-lucide="users" class="w-4 h-4 text-amber-500"></i>
-                    <span class="text-[9px] font-black uppercase tracking-widest text-amber-500 italic">Clientes</span>
+                <!-- Botón acceso a Catálogo / Clientes -->
+                <a href="catalogo.html" class="bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 px-4 py-2 rounded-xl flex items-center gap-2 transition">
+                    <i data-lucide="external-link" class="w-4 h-4 text-amber-500"></i>
+                    <span class="text-[9px] font-black uppercase tracking-widest text-amber-500 italic">Ver Catálogo</span>
                 </a>
+                <button onclick="handleLogout()" class="bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 px-4 py-2 rounded-xl flex items-center gap-2 transition text-red-400">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    <span class="text-[9px] font-black uppercase tracking-widest italic">Salir</span>
+                </button>
                 <div class="bg-white/5 px-4 py-2 rounded-xl border border-white/5 text-right">
                     <span id="totalProducts" class="text-xl font-black text-white">0</span>
                     <p class="text-[8px] text-neutral-500 uppercase font-bold italic">Categorías Base</p>
@@ -176,7 +180,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, deleteDoc, doc, updateDoc, setDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, deleteDoc, doc, updateDoc, setDoc, getDoc, arrayUnion, arrayRemove, where } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
@@ -188,27 +193,49 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Sincronizar nombre de la empresa en tiempo real desde Firestore
-        onSnapshot(doc(db, "config", "negocio"), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (data.name) {
-                    document.getElementById('headerCompanyName').innerText = data.name;
+        let currentUser = null;
+
+        // Validación de Sesión y Seguridad Multitenant
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+            currentUser = user;
+            document.getElementById('headerUserEmail').innerText = user.email;
+
+            // Cargar datos de la tienda vinculada a este usuario
+            try {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists() && userDoc.data().businessName) {
+                    const bName = userDoc.data().businessName;
+                    document.getElementById('headerCompanyName').innerText = bName;
                     const input = document.getElementById('companyNameInput');
                     if (input && document.activeElement !== input) {
-                        input.value = data.name;
+                        input.value = bName;
                     }
                 }
+            } catch (e) {
+                console.error("Error al cargar perfil:", e);
             }
+
+            // Escuchar productos filtrados exclusivamente por el ownerId de este usuario
+            setupRealtimeListener(user.uid);
         });
 
         window.saveCompanyName = async () => {
+            if (!currentUser) return;
             const name = document.getElementById('companyNameInput').value.trim();
             if (!name) return;
             try {
-                await setDoc(doc(db, "config", "negocio"), { name: name }, { merge: true });
+                // Actualizar en el perfil del usuario
+                await setDoc(doc(db, "users", currentUser.uid), { businessName: name }, { merge: true });
+                // Actualizar configuración global de negocio del tenant
+                await setDoc(doc(db, "config", "negocio"), { name: name, ownerId: currentUser.uid }, { merge: true });
+                document.getElementById('headerCompanyName').innerText = name;
             } catch (e) {
                 console.error("Error guardando nombre de empresa:", e);
             }
@@ -222,6 +249,8 @@
         const mainForm = document.getElementById('mainForm');
         mainForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (!currentUser) return;
+
             const id = document.getElementById('mainId').value;
             const data = {
                 name: document.getElementById('mainName').value,
@@ -229,6 +258,7 @@
                 img: document.getElementById('mainImg').value,
                 category: document.getElementById('mainCategory').value,
                 description: document.getElementById('mainDesc').value,
+                ownerId: currentUser.uid, // Clave para aislar datos por usuario
                 updatedAt: serverTimestamp()
             };
 
@@ -253,129 +283,4 @@
                 title: document.getElementById('varTitle').value,
                 gender: document.getElementById('varGender').value,
                 size: document.getElementById('varSize').value,
-                priceOld: parseFloat(document.getElementById('varPriceOld').value || 0),
-                priceNew: parseFloat(document.getElementById('varPriceNew').value),
-                img: document.getElementById('varImg').value || "" 
-            };
-
-            await updateDoc(doc(db, "perfumes", mainId), {
-                variants: arrayUnion(newVariant)
-            });
-            variantForm.reset();
-        });
-
-        onSnapshot(query(collection(db, "perfumes"), orderBy("name", "asc")), (snap) => {
-            const grid = document.getElementById('productsGrid');
-            document.getElementById('totalProducts').innerText = snap.size;
-            grid.innerHTML = "";
-            
-            snap.forEach(docSnap => {
-                const p = docSnap.data();
-                const id = docSnap.id;
-                const variants = p.variants || [];
-                
-                const card = document.createElement('div');
-                card.className = "glass-panel p-4 rounded-[2rem] relative group cursor-pointer hover:border-amber-500/40 transition-all border-l-4 " + (variants.length > 0 ? "border-l-amber-500" : "border-l-transparent");
-                card.onclick = () => selectProduct(id, p);
-                
-                card.innerHTML = `
-                    <div class="flex gap-4">
-                        <div class="w-16 h-16 rounded-2xl bg-black/50 overflow-hidden flex-shrink-0 border border-white/5">
-                            <img src="${formatImg(p.img)}" class="w-full h-full object-cover">
-                        </div>
-                        <div class="flex-grow min-w-0">
-                            <h3 class="text-sm font-black text-white uppercase truncate">${p.name}</h3>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[9px] text-amber-500/60 uppercase font-black italic tracking-widest">${variants.length} VARIANTES</span>
-                                <span class="text-[9px] text-green-500/60 font-bold">WA: ${p.whatsapp || 'N/A'}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button onclick="event.stopPropagation(); window.deleteMain('${id}')" class="absolute top-2 right-2 p-2 rounded-full text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                `;
-                grid.appendChild(card);
-
-                if(document.getElementById('mainId').value === id) {
-                    renderVariantsList(id, variants, p.img);
-                }
-            });
-            lucide.createIcons();
-        });
-
-        window.selectProduct = (id, data) => {
-            document.getElementById('mainId').value = id;
-            document.getElementById('mainName').value = data.name;
-            document.getElementById('mainWhatsApp').value = data.whatsapp || "";
-            document.getElementById('mainImg').value = data.img;
-            document.getElementById('mainCategory').value = data.category || "dama";
-            document.getElementById('mainDesc').value = data.description || "";
-            
-            document.getElementById('mainSubmit').innerText = "ACTUALIZAR DATOS BASE";
-            document.getElementById('cancelBtn').classList.remove('hidden');
-            document.getElementById('currentProductName').innerText = data.name;
-            document.getElementById('variantSection').classList.remove('hidden');
-            
-            renderVariantsList(id, data.variants || [], data.img);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        const renderVariantsList = (mainId, variants, mainImg) => {
-            const list = document.getElementById('variantList');
-            list.innerHTML = "";
-            if(variants.length === 0) {
-                list.innerHTML = "<p class='text-[10px] text-white/20 uppercase font-black text-center py-4 col-span-2'>No hay variantes registradas aún</p>";
-                return;
-            }
-
-            variants.forEach(v => {
-                const div = document.createElement('div');
-                div.className = "variant-card p-4 rounded-2xl flex items-center justify-between";
-                div.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <img src="${formatImg(v.img || mainImg)}" class="w-12 h-12 rounded-xl object-cover bg-black border border-white/10">
-                        <div>
-                            <h4 class="text-[11px] font-black text-white uppercase leading-none mb-1">${v.title}</h4>
-                            <div class="flex items-center gap-2">
-                                <span class="badge-gender ${v.gender === 'Dama' ? 'bg-pink-500 text-black' : v.gender === 'Caballero' ? 'bg-blue-500 text-black' : 'bg-amber-500 text-black'}">${v.gender}</span>
-                                <span class="text-[9px] text-white/40 font-bold">${v.size}</span>
-                            </div>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="text-[10px] font-black text-green-400">$${v.priceNew}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button onclick="deleteVariant('${mainId}', ${JSON.stringify(v).replace(/"/g, '&quot;')})" class="text-white/20 hover:text-red-500">
-                        <i data-lucide="trash" class="w-3 h-3"></i>
-                    </button>
-                `;
-                list.appendChild(div);
-            });
-            lucide.createIcons();
-        };
-
-        window.deleteVariant = async (mainId, variantObj) => {
-            await updateDoc(doc(db, "perfumes", mainId), { variants: arrayRemove(variantObj) });
-        };
-
-        window.deleteMain = async (id) => {
-            await deleteDoc(doc(db, "perfumes", id));
-            resetAll();
-        };
-
-        window.closeVariants = () => {
-            document.getElementById('variantSection').classList.add('hidden');
-            resetAll();
-        };
-
-        window.resetAll = () => {
-            mainForm.reset();
-            document.getElementById('mainId').value = "";
-            document.getElementById('mainSubmit').innerText = "REGISTRAR PRODUCTO BASE";
-            document.getElementById('cancelBtn').classList.add('hidden');
-            document.getElementById('variantSection').classList.add('hidden');
-        };
-
-        lucide.createIcons();
-    </script>
-</body>
-</html>
+                priceOld: parseFloat(document.getElementById('varPriceOld
