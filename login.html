@@ -151,7 +151,8 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 showToast("¡Inicio de sesión exitoso! Redirigiendo...", false);
-                setTimeout(() => window.location.href = "variantes.html", 1000);
+                // CORREGIDO: Apunta directo a index.html
+                setTimeout(() => window.location.href = "index.html", 1000);
             } catch (error) {
                 showToast("Error al iniciar sesión: " + error.message);
             }
@@ -168,7 +169,6 @@
                 const cred = await createUserWithEmailAndPassword(auth, email, password);
                 const user = cred.user;
 
-                // Guardar perfil de usuario y nombre del negocio en Firestore
                 await setDoc(doc(db, "users", user.uid), {
                     name: name,
                     businessName: business,
@@ -176,16 +176,23 @@
                     createdAt: new Date().toISOString()
                 });
 
-                // Establecer configuración global del negocio para que el catálogo la lea
                 await setDoc(doc(db, "config", "negocio"), {
                     name: business,
                     ownerId: user.uid
                 }, { merge: true });
 
                 showToast("¡Cuenta y negocio creados con éxito!", false);
-                setTimeout(() => window.location.href = "variantes.html", 1000);
+                // CORREGIDO: Apunta directo a index.html
+                setTimeout(() => window.location.href = "index.html", 1000);
             } catch (error) {
-                showToast("Error en el registro: " + error.message);
+                // Control amigable si el correo ya existe
+                if (error.code === 'auth/email-already-in-use') {
+                    showToast("Este correo ya está registrado. Por favor, inicia sesión.");
+                    switchTab('login');
+                    document.getElementById('loginEmail').value = email;
+                } else {
+                    showToast("Error en el registro: " + error.message);
+                }
             }
         };
 
@@ -194,7 +201,6 @@
                 const result = await signInWithPopup(auth, googleProvider);
                 const user = result.user;
 
-                // Verificar si ya tiene negocio configurado
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (!userDoc.exists()) {
                     const defaultBusiness = user.displayName ? `${user.displayName} Shop` : "Mi Catálogo";
@@ -211,7 +217,8 @@
                 }
 
                 showToast("¡Acceso con Google exitoso!", false);
-                setTimeout(() => window.location.href = "variantes.html", 1000);
+                // CORREGIDO: Apunta directo a index.html
+                setTimeout(() => window.location.href = "index.html", 1000);
             } catch (error) {
                 showToast("Error con Google: " + error.message);
             }
