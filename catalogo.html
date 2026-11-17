@@ -3,253 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PRODUCTOS LS | Catálogo Multiproducto</title>
+    <title>PRODUCTOS LS | Catálogo & Gestión</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #ffffff;
-            color: #000;
-            overflow-x: hidden;
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1px;
-            background-color: #f3f4f6;
-        }
-
-        .product-card {
-            background: white;
-            padding: 15px;
-            text-align: center;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .badge-count {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #000;
-            color: #fff;
-            font-size: 10px;
-            font-weight: 800;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid white;
-        }
-
-        .product-card img {
-            width: 100%;
-            aspect-ratio: 1/1;
-            object-fit: contain;
-            margin-bottom: 8px;
-        }
-
-        /* Modal */
-        #productModal {
-            position: fixed;
-            inset: 0;
-            background: white;
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-            transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        #productModal.active {
-            display: flex;
-            transform: translateY(0);
-        }
-
-        .modal-filter-bar {
-            display: flex;
-            padding: 10px;
-            gap: 6px;
-            border-bottom: 1px solid #f0f0f0;
-            background: #fff;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-        
-        .modal-filter-bar::-webkit-scrollbar { display: none; }
-
-        .filter-btn {
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 9px;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: #999;
-            background: #f9f9f9;
-            white-space: nowrap;
-            border: 1px solid transparent;
-        }
-
-        .filter-btn.active {
-            background: #000;
-            color: #fff;
-            border-color: #000;
-        }
-
-        .modal-scroll {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-        }
-
-        /* Variante Card */
-        .variant-card {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: #fff;
-            border-radius: 18px;
-            border: 2px solid #f0f0f0;
-            margin-bottom: 10px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .variant-card.selected {
-            border-color: #000;
-            background: #fafafa;
-        }
-
-        .selector-dot {
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            border: 2px solid #ddd;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .variant-card.selected .selector-dot {
-            border-color: #000;
-            background: #000;
-        }
-
-        .variant-card.selected .selector-dot::after {
-            content: '';
-            width: 7px;
-            height: 7px;
-            background: white;
-            border-radius: 50%;
-        }
-
-        /* Barra de Carrito */
-        #cartBar {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: #000;
-            color: white;
-            padding: 16px 22px;
-            border-radius: 20px;
-            display: none;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1100;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            z-index: 1010;
-            background: #f0f0f0;
-            border-radius: 50%;
-            padding: 8px;
-            cursor: pointer;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f9f9f9; }
+        .card { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
     </style>
 </head>
-<body class="pb-32">
+<body class="pb-24">
 
-    <!-- Header -->
-    <header class="p-5 bg-white border-b border-gray-100 flex justify-between items-center sticky top-0 z-40">
-        <div class="flex items-center gap-2">
-            <div id="headerLogoInitials" class="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold text-xs italic">LS</div>
-            <h1 id="headerCompanyName" class="font-black text-[13px] uppercase tracking-tighter italic">PRODUCTOS LS</h1>
-        </div>
-        <div class="flex items-center gap-3">
-            <a href="index.html" class="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 hover:text-black">Volver</a>
-            <div class="relative">
-                <i data-lucide="shopping-bag" class="w-6 h-6"></i>
-                <div id="cartCountBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</div>
+    <!-- Pantalla de control si no hay sesión -->
+    <div id="authCheckScreen" class="fixed inset-0 bg-white z-50 flex items-center justify-center p-6 transition-opacity duration-300">
+        <div class="max-w-md w-full card text-center space-y-6">
+            <div class="w-16 h-16 bg-black rounded-2xl flex items-center justify-center text-white font-black italic mx-auto text-xl shadow-xl">LS</div>
+            <div class="space-y-2">
+                <h2 class="text-xl font-black uppercase italic tracking-wider">Acceso Requerido</h2>
+                <p class="text-xs text-gray-500 font-bold">Inicia sesión con tu cuenta o activa el modo de prueba para visualizar el panel.</p>
             </div>
-        </div>
-    </header>
-
-    <!-- Grid de Catálogo -->
-    <div id="catalogGrid" class="product-grid"></div>
-
-    <!-- Modal de Selección -->
-    <div id="productModal">
-        <button onclick="closeModal()" class="close-btn">
-            <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-
-        <div class="pt-14 px-6 pb-4">
-            <h2 id="modalTitle" class="text-2xl font-black italic uppercase leading-none mb-1">---</h2>
-            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Elige tus favoritos</p>
-        </div>
-
-        <div class="modal-filter-bar">
-            <button onclick="filterModalVariants('todos')" id="m-btn-todos" class="filter-btn active">Todos</button>
-            <button onclick="filterModalVariants('dama')" id="m-btn-dama" class="filter-btn">Dama</button>
-            <button onclick="filterModalVariants('caballero')" id="m-btn-caballero" class="filter-btn">Caballero</button>
-            <button onclick="filterModalVariants('unisex')" id="m-btn-unisex" class="filter-btn">Unisex</button>
-        </div>
-
-        <div class="modal-scroll">
-            <div id="variantsContainer"></div>
-        </div>
-
-        <div class="p-6 border-t border-gray-100 bg-white">
-            <button onclick="closeModal()" class="w-full bg-black text-white py-4 rounded-xl font-black uppercase text-[11px] tracking-widest">
-                Confirmar Selección
-            </button>
+            <div class="space-y-3">
+                <a href="login.html" class="block w-full bg-black text-white py-4 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg hover:bg-gray-800 transition">
+                    Ir al Login
+                </a>
+                <button onclick="enableTestMode()" class="w-full bg-gray-100 hover:bg-gray-200 text-black py-3.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition">
+                    Activar Modo de Prueba
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Barra de Resumen y WhatsApp -->
-    <div id="cartBar" onclick="sendOrder()">
-        <div class="flex flex-col">
-            <span id="cartBarCount" class="text-[9px] font-bold uppercase tracking-widest opacity-70">0 productos</span>
-            <span id="cartBarTotal" class="text-base font-black italic">$0</span>
-        </div>
-        <div class="flex items-center gap-3">
-            <span class="text-[10px] font-black uppercase italic tracking-wider">Hacer pedido</span>
-            <i data-lucide="send" class="w-4 h-4"></i>
-        </div>
+    <!-- Dashboard Principal -->
+    <div id="mainDashboard" class="opacity-0 transition-opacity duration-300">
+        <!-- Header -->
+        <header class="p-6 flex justify-between items-center bg-white border-b border-gray-100 sticky top-0 z-40">
+            <div class="flex items-center gap-3">
+                <div id="headerLogoInitials" class="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-white font-black italic shadow-md">LS</div>
+                <div>
+                    <h1 id="headerCompanyName" class="text-[13px] font-black uppercase italic">PRODUCTOS LS</h1>
+                    <p class="text-[10px] text-gray-500 font-bold tracking-wider">Catálogo & Gestión</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="logout()" class="flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-xl transition">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    <span>Salir</span>
+                </button>
+            </div>
+        </header>
+
+        <main class="p-6 space-y-6 max-w-4xl mx-auto">
+            <!-- Banner / Portada Promocional -->
+            <div class="card bg-black text-white p-8 shadow-2xl relative overflow-hidden">
+                <div class="relative z-10">
+                    <span class="inline-block px-3 py-1 bg-white/10 rounded-full text-[9px] font-black uppercase tracking-widest mb-4">
+                        Colección Oficial
+                    </span>
+                    <h2 class="text-3xl font-black italic uppercase leading-tight mb-2">
+                        Explora Nuestro Catálogo
+                    </h2>
+                    <p class="text-xs text-gray-300 font-normal leading-relaxed mb-6 max-w-md">
+                        Descubre la selección exclusiva de productos disponibles. Calidad, estilo y atención personalizada en un solo lugar.
+                    </p>
+                    <a href="catalogo.html" class="inline-flex items-center gap-2 bg-white text-black px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider hover:bg-gray-100 transition">
+                        <span>Ver Catálogo Completo</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Panel de Accesos para Dueños del Catálogo -->
+            <div class="card">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-[11px] font-black uppercase tracking-widest">Accesos Rápidos</h3>
+                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Administración</span>
+                </div>
+                
+                <div id="adminAccessGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <a href="catalogo.html" class="bg-gray-50 hover:bg-gray-100 transition p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border border-gray-100 text-center">
+                        <div class="w-10 h-10 bg-black text-white rounded-xl flex items-center justify-center shadow-md">
+                            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-wider mt-1">Catálogo Público</span>
+                        <span class="text-[9px] text-gray-500 font-bold">Ver tienda</span>
+                    </a>
+
+                    <a href="admin.html" class="bg-black hover:bg-gray-900 text-white transition p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border border-black text-center shadow-sm">
+                        <div class="w-10 h-10 bg-white text-black rounded-xl flex items-center justify-center shadow-md">
+                            <i data-lucide="settings" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-wider mt-1">Panel de Gestión</span>
+                        <span class="text-[9px] text-gray-300 font-bold">Productos y Variantes</span>
+                    </a>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
@@ -264,35 +118,9 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let products = [];
-        let cart = []; 
-        let currentProduct = null;
-        let currentModalFilter = 'todos';
-        let currentCompanyName = "PRODUCTOS LS";
-
-        // Validación de sesión activa (Multi-tenant)
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                // Si no hay sesión, redirigir al login
-                window.location.href = "login.html";
-                return;
-            }
-
-            // Cargar datos del negocio del usuario logueado
-            try {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists() && userDoc.data().businessName) {
-                    currentCompanyName = userDoc.data().businessName;
-                    document.getElementById('headerCompanyName').innerText = currentCompanyName;
-                    updateInitials(currentCompanyName);
-                }
-            } catch (e) {
-                console.error("Error al cargar perfil:", e);
-            }
-        });
-
-        function updateInitials(name) {
-            const words = name.trim().split(/\s+/);
+        function updateBranding(businessName) {
+            document.getElementById('headerCompanyName').innerText = businessName;
+            const words = businessName.trim().split(/\s+/);
             let initials = "LS";
             if (words.length >= 2) {
                 initials = (words[0][0] + words[1][0]).toUpperCase();
@@ -302,167 +130,66 @@
             document.getElementById('headerLogoInitials').innerText = initials;
         }
 
-        // Sincronizar nombre global de la empresa si existe en config
-        onSnapshot(doc(db, "config", "negocio"), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (data.name) {
-                    currentCompanyName = data.name;
-                    document.getElementById('headerCompanyName').innerText = currentCompanyName;
-                    updateInitials(currentCompanyName);
-                }
+        // Verificación de autenticación robusta
+        onAuthStateChanged(auth, async (user) => {
+            const isTestMode = localStorage.getItem('testMode') === 'true';
+
+            if (!user && !isTestMode) {
+                // Si no hay sesión ni modo prueba, muestra la pantalla para ir al login
+                document.getElementById('authCheckScreen').style.opacity = '1';
+                document.getElementById('authCheckScreen').style.display = 'flex';
+                document.getElementById('mainDashboard').style.opacity = '0';
+                lucide.createIcons();
+                return;
             }
-        });
 
-        const cleanUrl = (url) => {
-            if (!url) return "https://via.placeholder.com/400?text=PRODUCTOS+LS";
-            return url.trim().replace('dl=0', 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
-        };
-
-        // Escuchar cambios en la base de datos de productos
-        onSnapshot(query(collection(db, "perfumes"), orderBy("name", "asc")), (snap) => {
-            products = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderGrid();
-        });
-
-        // Dibujar el catálogo principal
-        function renderGrid() {
-            const grid = document.getElementById('catalogGrid');
-            grid.innerHTML = products.map(p => {
-                const itemsFromThisProduct = cart.filter(item => item.pId === p.id).length;
-                return `
-                <div class="product-card" onclick="openModal('${p.id}')">
-                    ${itemsFromThisProduct > 0 ? `<div class="badge-count">${itemsFromThisProduct}</div>` : ''}
-                    <img src="${cleanUrl(p.img)}">
-                    <h3 class="text-[9px] font-black uppercase italic tracking-tighter mb-1 truncate px-2">${p.name}</h3>
-                    <p class="text-[11px] font-bold text-black">$${p.priceNew || '---'}</p>
-                </div>
-            `}).join('');
-            lucide.createIcons();
-        }
-
-        // Abrir detalles de producto
-        window.openModal = (id) => {
-            currentProduct = products.find(p => p.id === id);
-            document.getElementById('modalTitle').innerText = currentProduct.name;
-            const modal = document.getElementById('productModal');
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('active'), 10);
-            filterModalVariants('todos');
-            document.body.style.overflow = 'hidden';
-        };
-
-        // Cerrar modal
-        window.closeModal = () => {
-            const modal = document.getElementById('productModal');
-            modal.classList.remove('active');
+            // Ocultar pantalla de bloqueo y mostrar dashboard
+            document.getElementById('authCheckScreen').style.opacity = '0';
             setTimeout(() => {
-                modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
-                renderGrid();
-            }, 400);
-        };
+                document.getElementById('authCheckScreen').style.display = 'none';
+                document.getElementById('mainDashboard').style.opacity = '1';
+            }, 300);
 
-        // Filtro dentro del modal
-        window.filterModalVariants = (cat) => {
-            currentModalFilter = cat;
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`m-btn-${cat}`).classList.add('active');
-            renderVariants();
-        };
-
-        // Alternar selección de variante
-        window.toggleVariant = (vId) => {
-            const variant = currentProduct.variants.find(v => (v.id || (v.title + v.size)) === vId);
-            const existingIndex = cart.findIndex(item => item.pId === currentProduct.id && item.vId === vId);
-
-            if (existingIndex > -1) {
-                cart.splice(existingIndex, 1);
-            } else {
-                cart.push({
-                    pId: currentProduct.id,
-                    vId: vId,
-                    pName: currentProduct.name,
-                    vName: variant.title,
-                    size: variant.size,
-                    price: parseFloat(variant.priceNew) || 0,
-                    wa: currentProduct.whatsapp || "584120000000"
-                });
-            }
-            renderVariants();
-            updateCartUI();
-        };
-
-        // Dibujar las variantes en el modal
-        function renderVariants() {
-            const container = document.getElementById('variantsContainer');
-            let variants = currentProduct.variants || [];
-            
-            if (currentModalFilter !== 'todos') {
-                variants = variants.filter(v => (v.gender || '').toLowerCase() === currentModalFilter);
+            try {
+                if (user) {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists() && userDoc.data().businessName) {
+                        updateBranding(userDoc.data().businessName);
+                        return;
+                    }
+                }
+                const businessDoc = await getDoc(doc(db, "config", "negocio"));
+                if (businessDoc.exists() && businessDoc.data().name) {
+                    updateBranding(businessDoc.data().name);
+                }
+            } catch (e) {
+                console.error("Error cargando perfil:", e);
             }
 
-            container.innerHTML = variants.map(v => {
-                const vId = v.id || (v.title + v.size);
-                const isSelected = cart.some(item => item.pId === currentProduct.id && item.vId === vId);
-                
-                return `
-                <div class="variant-card ${isSelected ? 'selected' : ''}" onclick="toggleVariant('${vId}')">
-                    <img src="${cleanUrl(v.img || currentProduct.img)}" class="w-12 h-12 object-contain rounded-lg">
-                    <div class="flex-1">
-                        <h4 class="font-black italic uppercase text-[10px] leading-tight">${v.title}</h4>
-                        <div class="flex gap-2 items-center mt-0.5">
-                            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">${v.size}</span>
-                            <span class="text-[8px] font-extrabold px-1.5 py-0.5 bg-gray-100 rounded text-gray-600 uppercase">${v.gender || 'Unisex'}</span>
-                        </div>
-                        <p class="text-sm font-black mt-1">$${v.priceNew}</p>
-                    </div>
-                    <div class="selector-dot"></div>
-                </div>
-            `}).join('');
-        }
-
-        // Actualizar la barra inferior de carrito
-        function updateCartUI() {
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            const count = cart.length;
-            const bar = document.getElementById('cartBar');
-            const badge = document.getElementById('cartCountBadge');
-
-            if (count > 0) {
-                bar.style.display = 'flex';
-                badge.innerText = count;
-                badge.classList.remove('hidden');
-                document.getElementById('cartBarCount').innerText = `${count} ${count === 1 ? 'producto' : 'productos'} seleccionado(s)`;
-                document.getElementById('cartBarTotal').innerText = `$${total.toFixed(2)}`;
-            } else {
-                bar.style.display = 'none';
-                badge.classList.add('hidden');
-            }
             lucide.createIcons();
-        }
+        });
 
-        // Enviar pedido consolidado por WhatsApp
-        window.sendOrder = () => {
-            if (cart.length === 0) return;
-
-            const targetPhone = cart[0].wa;
-            
-            let message = `¡Hola! 👋 Quisiera comprar estos productos en *${currentCompanyName}*:\n\n`;
-            
-            cart.forEach((item, i) => {
-                message += `🔹 *${item.pName}*\n`;
-                message += `    Variante: ${item.vName} (${item.size})\n`;
-                message += `    Precio: $${item.price}\n\n`;
-            });
-
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            message += `━━━━━━━━━━━━━━\n`;
-            message += `✅ *TOTAL DEL PEDIDO: $${total.toFixed(2)}*\n\n`;
-            message += `¿Están disponibles?`;
-
-            window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`, '_blank');
+        window.enableTestMode = () => {
+            localStorage.setItem('testMode', 'true');
+            document.getElementById('authCheckScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('authCheckScreen').style.display = 'none';
+                document.getElementById('mainDashboard').style.opacity = '1';
+            }, 300);
+            updateBranding("PRODUCTOS LS (MODO PRUEBA)");
         };
+
+        window.logout = async () => {
+            localStorage.removeItem('testMode');
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+            }
+            window.location.href = "login.html";
+        };
+
+        lucide.createIcons();
     </script>
 </body>
 </html>
