@@ -194,7 +194,7 @@
             <h1 id="headerCompanyName" class="font-black text-[13px] uppercase tracking-tighter italic">PRODUCTOS LS</h1>
         </div>
         <div class="flex items-center gap-3">
-            <a href="index.html" class="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 hover:text-black">Volver</a>
+            <a href="index.html" class="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 hover:text-black">Panel</a>
             <div class="relative">
                 <i data-lucide="shopping-bag" class="w-6 h-6"></i>
                 <div id="cartCountBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</div>
@@ -249,7 +249,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, query, orderBy, getDoc, where } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
@@ -270,15 +270,14 @@
         let currentModalFilter = 'todos';
         let currentCompanyName = "PRODUCTOS LS";
 
-        // Validación de sesión activa (Multi-tenant)
+        // Validación de sesión activa y aislamiento de datos por usuario (Multi-tenant)
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                // Si no hay sesión, redirigir al login
                 window.location.href = "login.html";
                 return;
             }
 
-            // Cargar datos del negocio del usuario logueado
+            // Cargar nombre del negocio de este usuario específico
             try {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists() && userDoc.data().businessName) {
@@ -289,6 +288,9 @@
             } catch (e) {
                 console.error("Error al cargar perfil:", e);
             }
+
+            // Escuchar únicamente los productos que pertenecen a este usuario logueado
+            setupCatalogListener(user.uid);
         });
 
         function updateInitials(name) {
@@ -302,28 +304,20 @@
             document.getElementById('headerLogoInitials').innerText = initials;
         }
 
-        // Sincronizar nombre global de la empresa si existe en config
-        onSnapshot(doc(db, "config", "negocio"), (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                if (data.name) {
-                    currentCompanyName = data.name;
-                    document.getElementById('headerCompanyName').innerText = currentCompanyName;
-                    updateInitials(currentCompanyName);
-                }
-            }
-        });
-
         const cleanUrl = (url) => {
             if (!url) return "https://via.placeholder.com/400?text=PRODUCTOS+LS";
             return url.trim().replace('dl=0', 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
         };
 
-        // Escuchar cambios en la base de datos de productos
-        onSnapshot(query(collection(db, "perfumes"), orderBy("name", "asc")), (snap) => {
-            products = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderGrid();
-        });
+        // Cargar productos filtrados por ownerId
+        function setupCatalogListener(uid) {
+            const q = query(collection(db, "perfumes"), where("ownerId", "==", uid), orderBy("name", "asc"));
+            
+            onSnapshot(q, (snap) => {
+                products = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderGrid();
+            });
+        }
 
         // Dibujar el catálogo principal
         function renderGrid() {
