@@ -14,20 +14,26 @@
 </head>
 <body class="pb-24">
 
-    <!-- Pantalla de carga inicial mientras verifica sesión -->
+    <!-- Pantalla de control si no hay sesión -->
     <div id="authCheckScreen" class="fixed inset-0 bg-white z-50 flex items-center justify-center p-6 transition-opacity duration-300">
         <div class="max-w-md w-full card text-center space-y-6">
             <div class="w-16 h-16 bg-black rounded-2xl flex items-center justify-center text-white font-black italic mx-auto text-xl shadow-xl">LS</div>
             <div class="space-y-2">
-                <h2 class="text-xl font-black uppercase italic tracking-wider">Verificando Acceso</h2>
-                <p class="text-xs text-gray-500 font-bold">Comprobando sesión activa en el sistema...</p>
+                <h2 class="text-xl font-black uppercase italic tracking-wider">Acceso Requerido</h2>
+                <p class="text-xs text-gray-500 font-bold">Inicia sesión con tu cuenta o activa el modo de prueba para visualizar el panel.</p>
             </div>
-            <div class="flex justify-center">
-                <div class="w-6 h-6 border-3 border-black border-t-transparent rounded-full animate-spin"></div>
+            <div class="space-y-3">
+                <a href="login.html" class="block w-full bg-black text-white py-4 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg hover:bg-gray-800 transition">
+                    Ir al Login
+                </a>
+                <button onclick="enableTestMode()" class="w-full bg-gray-100 hover:bg-gray-200 text-black py-3.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition">
+                    Activar Modo de Prueba
+                </button>
             </div>
         </div>
     </div>
 
+    <!-- Dashboard Principal -->
     <div id="mainDashboard" class="opacity-0 transition-opacity duration-300">
         <!-- Header -->
         <header class="p-6 flex justify-between items-center bg-white border-b border-gray-100 sticky top-0 z-40">
@@ -124,40 +130,57 @@
             document.getElementById('headerLogoInitials').innerText = initials;
         }
 
-        // Verificación limpia de sesión
+        // Verificación de autenticación robusta
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                // Si no hay sesión activa, redirigir automáticamente al login
-                window.location.href = "login.html";
+            const isTestMode = localStorage.getItem('testMode') === 'true';
+
+            if (!user && !isTestMode) {
+                // Si no hay sesión ni modo prueba, muestra la pantalla para ir al login
+                document.getElementById('authCheckScreen').style.opacity = '1';
+                document.getElementById('authCheckScreen').style.display = 'flex';
+                document.getElementById('mainDashboard').style.opacity = '0';
+                lucide.createIcons();
                 return;
             }
 
+            // Ocultar pantalla de bloqueo y mostrar dashboard
+            document.getElementById('authCheckScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('authCheckScreen').style.display = 'none';
+                document.getElementById('mainDashboard').style.opacity = '1';
+            }, 300);
+
             try {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists() && userDoc.data().businessName) {
-                    updateBranding(userDoc.data().businessName);
-                } else {
-                    const businessDoc = await getDoc(doc(db, "config", "negocio"));
-                    if (businessDoc.exists() && businessDoc.data().name) {
-                        updateBranding(businessDoc.data().name);
+                if (user) {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists() && userDoc.data().businessName) {
+                        updateBranding(userDoc.data().businessName);
+                        return;
                     }
+                }
+                const businessDoc = await getDoc(doc(db, "config", "negocio"));
+                if (businessDoc.exists() && businessDoc.data().name) {
+                    updateBranding(businessDoc.data().name);
                 }
             } catch (e) {
                 console.error("Error cargando perfil:", e);
             }
 
-            // Ocultar pantalla de verificación y mostrar el dashboard con suavidad
-            document.getElementById('authCheckScreen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('authCheckScreen').style.display = 'none';
-                const dash = document.getElementById('mainDashboard');
-                dash.style.opacity = '1';
-            }, 300);
-
             lucide.createIcons();
         });
 
+        window.enableTestMode = () => {
+            localStorage.setItem('testMode', 'true');
+            document.getElementById('authCheckScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('authCheckScreen').style.display = 'none';
+                document.getElementById('mainDashboard').style.opacity = '1';
+            }, 300);
+            updateBranding("PRODUCTOS LS (MODO PRUEBA)");
+        };
+
         window.logout = async () => {
+            localStorage.removeItem('testMode');
             try {
                 await signOut(auth);
             } catch (error) {
