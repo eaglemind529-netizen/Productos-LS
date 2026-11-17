@@ -1,73 +1,344 @@
-font-black italic">LS</div>
-            <div>
-                <h1 class="text-[13px] font-black uppercase italic">PRODUCTOS LS</h1>
-                <p class="text-[10px] text-gray-500 font-bold tracking-wider">Catálogo & Gestión</p>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jaddy INC - Gestión de Variantes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #e5e5e5;
+            background-image: radial-gradient(rgba(245, 158, 11, 0.03) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+        .glass-panel {
+            background: rgba(18, 18, 18, 0.8);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .variant-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        .variant-card:hover { border-color: rgba(245, 158, 11, 0.3); background: rgba(255, 255, 255, 0.05); }
+        input, select, textarea {
+            background: rgba(255, 255, 255, 0.02) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 12px !important;
+            padding: 10px 14px !important;
+            color: white !important;
+            outline: none !important;
+            font-size: 0.875rem !important;
+        }
+        input:focus { border-color: #f59e0b !important; }
+        .btn-amber { background: linear-gradient(to right, #f59e0b, #d97706); color: black; font-weight: 900; }
+        .badge-gender { font-size: 8px; font-weight: 900; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+    </style>
+</head>
+<body class="min-h-screen pb-20">
+
+    <div class="max-w-6xl mx-auto px-4 pt-10">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20">
+                    <i data-lucide="layers" class="text-black"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black italic uppercase tracking-tighter text-white leading-none">Jaddy INC</h1>
+                    <p class="text-[9px] font-bold text-amber-500 uppercase tracking-[0.3em]">Gestión de Variantes</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- Botón acceso a Clientes añadido aquí -->
+                <a href="admin.html" class="bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 px-4 py-2 rounded-xl flex items-center gap-2 transition">
+                    <i data-lucide="users" class="w-4 h-4 text-amber-500"></i>
+                    <span class="text-[9px] font-black uppercase tracking-widest text-amber-500 italic">Clientes</span>
+                </a>
+                <div class="bg-white/5 px-4 py-2 rounded-xl border border-white/5 text-right">
+                    <span id="totalProducts" class="text-xl font-black text-white">0</span>
+                    <p class="text-[8px] text-neutral-500 uppercase font-bold italic">Categorías Base</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Formulario Base -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="glass-panel p-6 rounded-[2rem]">
+                    <h2 class="text-xs font-black uppercase text-amber-500 mb-6 flex items-center gap-2 italic">
+                        <i data-lucide="package" class="w-4 h-4"></i> Producto Principal
+                    </h2>
+                    
+                    <form id="mainForm" class="space-y-4">
+                        <input type="hidden" id="mainId">
+                        
+                        <div class="space-y-1">
+                            <label class="text-[10px] uppercase font-bold text-neutral-500 ml-1">Nombre General</label>
+                            <input type="text" id="mainName" placeholder="Ej: Perfumes Árabes" required class="w-full">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-[10px] uppercase font-bold text-neutral-500 ml-1">WhatsApp de Pedidos (Sin +)</label>
+                            <input type="text" id="mainWhatsApp" placeholder="Ej: 573001234567" required class="w-full border-green-500/20">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-[10px] uppercase font-bold text-neutral-500 ml-1">Categoría Principal</label>
+                            <select id="mainCategory" class="w-full" required>
+                                <option value="dama">Dama</option>
+                                <option value="caballero">Caballero</option>
+                                <option value="unisex">Unisex</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-[10px] uppercase font-bold text-neutral-500 ml-1">Imagen Principal</label>
+                            <input type="text" id="mainImg" placeholder="Link de foto de portada" required class="w-full">
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-[10px] uppercase font-bold text-neutral-500 ml-1">Descripción corta</label>
+                            <textarea id="mainDesc" rows="2" class="w-full resize-none" placeholder="Opcional..."></textarea>
+                        </div>
+
+                        <button type="submit" id="mainSubmit" class="w-full btn-amber py-4 rounded-xl text-xs uppercase italic mt-2">
+                            Registrar Producto Base
+                        </button>
+                        <button type="button" onclick="resetAll()" id="cancelBtn" class="w-full text-white/40 text-[9px] uppercase font-bold hidden">Cancelar y Limpiar</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Inventario y Gestión -->
+            <div class="lg:col-span-8 space-y-6">
+                <!-- PANEL DE VARIANTES -->
+                <div id="variantSection" class="hidden glass-panel p-6 rounded-[2rem] border-amber-500/40 bg-amber-500/[0.03]">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-xs font-black uppercase text-amber-500 italic">Agregar Variantes a:</h2>
+                            <p id="currentProductName" class="text-xl font-black text-white uppercase italic"></p>
+                        </div>
+                        <button onclick="closeVariants()" class="bg-white/5 p-2 rounded-full hover:bg-white/10"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    </div>
+
+                    <form id="variantForm" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-3">
+                                <input type="text" id="varTitle" placeholder="Nombre Variante (ej: Chocolate)" required class="w-full border-amber-500/20">
+                                <select id="varGender" class="w-full" required>
+                                    <option value="Dama">Dama</option>
+                                    <option value="Caballero">Caballero</option>
+                                    <option value="Unisex">Unisex</option>
+                                </select>
+                                <input type="text" id="varSize" placeholder="Presentación (ej: 100ml)" required class="w-full">
+                            </div>
+                            <div class="space-y-3">
+                                <input type="text" id="varImg" placeholder="Link de Imagen específica" class="w-full">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="number" id="varPriceOld" step="0.01" placeholder="Antes $" class="w-full border-red-500/20 text-red-400">
+                                    <input type="number" id="varPriceNew" step="0.01" placeholder="Hoy $" required class="w-full border-green-500/20 text-green-400">
+                                </div>
+                                <button type="submit" class="w-full btn-amber py-3 rounded-xl text-[10px] uppercase">
+                                    <i data-lucide="plus-circle" class="inline w-3 h-3 mr-1"></i> Guardar Variante
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div id="variantList" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-8 border-t border-white/5 pt-6"></div>
+                </div>
+
+                <!-- Lista de Productos Existentes -->
+                <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
             </div>
         </div>
-        <i data-lucide="music" class="w-5 h-5 text-gray-400"></i>
-    </header>
-
-    <main class="p-6 space-y-6">
-        <!-- Banner / Portada Promocional -->
-        <div class="card bg-black text-white p-8 shadow-2xl relative overflow-hidden">
-            <div class="relative z-10">
-                <span class="inline-block px-3 py-1 bg-white/10 rounded-full text-[9px] font-black uppercase tracking-widest mb-4">
-                    Colección Oficial
-                </span>
-                <h2 class="text-3xl font-black italic uppercase leading-tight mb-2">
-                    Explora Nuestro Catálogo
-                </h2>
-                <p class="text-xs text-gray-300 font-normal leading-relaxed mb-6 max-w-md">
-                    Descubre la selección exclusiva de productos disponibles. Calidad, estilo y atención personalizada en un solo lugar.
-                </p>
-                <a href="catalogo.html" class="inline-flex items-center gap-2 bg-white text-black px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider hover:bg-gray-100 transition">
-                    <span>Ver Catálogo Completo</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </a>
-            </div>
-        </div>
-
-        <!-- Panel de Accesos para Dueños del Catálogo -->
-        <div class="card">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-[11px] font-black uppercase tracking-widest">Accesos Rápidos</h3>
-                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Administración</span>
-            </div>
-            
-            <!-- Cuadrícula preparada para accesos actuales y futuros -->
-            <div id="adminAccessGrid" class="grid grid-cols-2 gap-4">
-                <a href="catalogo.html" class="bg-gray-50 hover:bg-gray-100 transition p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border border-gray-100 text-center">
-                    <div class="w-10 h-10 bg-black text-white rounded-xl flex items-center justify-center">
-                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-[10px] font-black uppercase tracking-wider mt-1">Catálogo</span>
-                    <span class="text-[9px] text-gray-500 font-bold">Vista pública</span>
-                </a>
-
-                <!-- Acceso a admin.html -->
-                <a href="admin.html" class="bg-black hover:bg-gray-900 text-white transition p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border border-black text-center shadow-sm">
-                    <div class="w-10 h-10 bg-white text-black rounded-xl flex items-center justify-center">
-                        <i data-lucide="settings" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-[10px] font-black uppercase tracking-wider mt-1">Panel Admin</span>
-                    <span class="text-[9px] text-gray-300 font-bold">Gestionar</span>
-                </a>
-
-                <!-- Espacio reservado para futuros accesos -->
-                <div class="bg-gray-50/60 p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border border-dashed border-gray-200 text-center">
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, deleteDoc, doc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        const db = getFirestore(initializeApp({
+        const firebaseConfig = {
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
             authDomain: "apps-d45d6.firebaseapp.com",
             projectId: "apps-d45d6",
             storageBucket: "apps-d45d6.firebasestorage.app",
             messagingSenderId: "502648373937",
             appId: "1:502648373937:web:8c3beaa2a6c9289a4d9890"
-        }));
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const formatImg = (url) => {
+            if (!url) return "https://via.placeholder.com/400?text=Jaddy+INC";
+            return url.trim().replace('dl=0', 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
+        };
+
+        const mainForm = document.getElementById('mainForm');
+        mainForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('mainId').value;
+            const data = {
+                name: document.getElementById('mainName').value,
+                whatsapp: document.getElementById('mainWhatsApp').value.replace(/\D/g,''),
+                img: document.getElementById('mainImg').value,
+                category: document.getElementById('mainCategory').value,
+                description: document.getElementById('mainDesc').value,
+                updatedAt: serverTimestamp()
+            };
+
+            if (id) {
+                await updateDoc(doc(db, "perfumes", id), data);
+            } else {
+                data.variants = [];
+                data.createdAt = serverTimestamp();
+                await addDoc(collection(db, "perfumes"), data);
+            }
+            resetAll();
+        });
+
+        const variantForm = document.getElementById('variantForm');
+        variantForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const mainId = document.getElementById('mainId').value;
+            if(!mainId) return;
+
+            const newVariant = {
+                id: Date.now().toString(),
+                title: document.getElementById('varTitle').value,
+                gender: document.getElementById('varGender').value,
+                size: document.getElementById('varSize').value,
+                priceOld: parseFloat(document.getElementById('varPriceOld').value || 0),
+                priceNew: parseFloat(document.getElementById('varPriceNew').value),
+                img: document.getElementById('varImg').value || "" 
+            };
+
+            await updateDoc(doc(db, "perfumes", mainId), {
+                variants: arrayUnion(newVariant)
+            });
+            variantForm.reset();
+        });
+
+        onSnapshot(query(collection(db, "perfumes"), orderBy("name", "asc")), (snap) => {
+            const grid = document.getElementById('productsGrid');
+            document.getElementById('totalProducts').innerText = snap.size;
+            grid.innerHTML = "";
+            
+            snap.forEach(docSnap => {
+                const p = docSnap.data();
+                const id = docSnap.id;
+                const variants = p.variants || [];
+                
+                const card = document.createElement('div');
+                card.className = "glass-panel p-4 rounded-[2rem] relative group cursor-pointer hover:border-amber-500/40 transition-all border-l-4 " + (variants.length > 0 ? "border-l-amber-500" : "border-l-transparent");
+                card.onclick = () => selectProduct(id, p);
+                
+                card.innerHTML = `
+                    <div class="flex gap-4">
+                        <div class="w-16 h-16 rounded-2xl bg-black/50 overflow-hidden flex-shrink-0 border border-white/5">
+                            <img src="${formatImg(p.img)}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <h3 class="text-sm font-black text-white uppercase truncate">${p.name}</h3>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[9px] text-amber-500/60 uppercase font-black italic tracking-widest">${variants.length} VARIANTES</span>
+                                <span class="text-[9px] text-green-500/60 font-bold">WA: ${p.whatsapp || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="event.stopPropagation(); window.deleteMain('${id}')" class="absolute top-2 right-2 p-2 rounded-full text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                `;
+                grid.appendChild(card);
+
+                if(document.getElementById('mainId').value === id) {
+                    renderVariantsList(id, variants, p.img);
+                }
+            });
+            lucide.createIcons();
+        });
+
+        window.selectProduct = (id, data) => {
+            document.getElementById('mainId').value = id;
+            document.getElementById('mainName').value = data.name;
+            document.getElementById('mainWhatsApp').value = data.whatsapp || "";
+            document.getElementById('mainImg').value = data.img;
+            document.getElementById('mainCategory').value = data.category || "dama";
+            document.getElementById('mainDesc').value = data.description || "";
+            
+            document.getElementById('mainSubmit').innerText = "ACTUALIZAR DATOS BASE";
+            document.getElementById('cancelBtn').classList.remove('hidden');
+            document.getElementById('currentProductName').innerText = data.name;
+            document.getElementById('variantSection').classList.remove('hidden');
+            
+            renderVariantsList(id, data.variants || [], data.img);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const renderVariantsList = (mainId, variants, mainImg) => {
+            const list = document.getElementById('variantList');
+            list.innerHTML = "";
+            if(variants.length === 0) {
+                list.innerHTML = "<p class='text-[10px] text-white/20 uppercase font-black text-center py-4 col-span-2'>No hay variantes registradas aún</p>";
+                return;
+            }
+
+            variants.forEach(v => {
+                const div = document.createElement('div');
+                div.className = "variant-card p-4 rounded-2xl flex items-center justify-between";
+                div.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${formatImg(v.img || mainImg)}" class="w-12 h-12 rounded-xl object-cover bg-black border border-white/10">
+                        <div>
+                            <h4 class="text-[11px] font-black text-white uppercase leading-none mb-1">${v.title}</h4>
+                            <div class="flex items-center gap-2">
+                                <span class="badge-gender ${v.gender === 'Dama' ? 'bg-pink-500 text-black' : v.gender === 'Caballero' ? 'bg-blue-500 text-black' : 'bg-amber-500 text-black'}">${v.gender}</span>
+                                <span class="text-[9px] text-white/40 font-bold">${v.size}</span>
+                            </div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-[10px] font-black text-green-400">$${v.priceNew}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="deleteVariant('${mainId}', ${JSON.stringify(v).replace(/"/g, '&quot;')})" class="text-white/20 hover:text-red-500">
+                        <i data-lucide="trash" class="w-3 h-3"></i>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+            lucide.createIcons();
+        };
+
+        window.deleteVariant = async (mainId, variantObj) => {
+            await updateDoc(doc(db, "perfumes", mainId), { variants: arrayRemove(variantObj) });
+        };
+
+        window.deleteMain = async (id) => {
+            if(confirm("¿Eliminar este producto y todas sus variantes?")) {
+                await deleteDoc(doc(db, "perfumes", id));
+                resetAll();
+            }
+        };
+
+        window.closeVariants = () => {
+            document.getElementById('variantSection').classList.add('hidden');
+            resetAll();
+        };
+
+        window.resetAll = () => {
+            mainForm.reset();
+            document.getElementById('mainId').value = "";
+            document.getElementById('mainSubmit').innerText = "REGISTRAR PRODUCTO BASE";
+            document.getElementById('cancelBtn').classList.add('hidden');
+            document.getElementById('variantSection').classList.add('hidden');
+        };
 
         lucide.createIcons();
     </script>
