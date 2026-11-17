@@ -194,7 +194,7 @@
             <h1 id="headerCompanyName" class="font-black text-[13px] uppercase tracking-tighter italic">PRODUCTOS LS</h1>
         </div>
         <div class="flex items-center gap-3">
-            <a href="admin.html" class="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 hover:text-black">Ir a Admin</a>
+            <a href="index.html" class="text-[10px] font-extrabold uppercase tracking-wider text-gray-500 hover:text-black">Volver</a>
             <div class="relative">
                 <i data-lucide="shopping-bag" class="w-6 h-6"></i>
                 <div id="cartCountBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</div>
@@ -249,7 +249,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, query, getDoc, where } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
@@ -270,13 +270,15 @@
         let currentModalFilter = 'todos';
         let currentCompanyName = "PRODUCTOS LS";
 
-        // Validación de sesión activa y carga de datos desde admin.html / Firestore
+        // Validación de sesión activa (Multi-tenant)
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
+                // Si no hay sesión, redirigir al login
                 window.location.href = "login.html";
                 return;
             }
 
+            // Cargar datos del negocio del usuario logueado
             try {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists() && userDoc.data().businessName) {
@@ -287,9 +289,6 @@
             } catch (e) {
                 console.error("Error al cargar perfil:", e);
             }
-
-            // Escuchar los productos creados en admin.html filtrados por el ownerId de este usuario
-            setupCatalogListener(user.uid);
         });
 
         function updateInitials(name) {
@@ -303,31 +302,32 @@
             document.getElementById('headerLogoInitials').innerText = initials;
         }
 
+        // Sincronizar nombre global de la empresa si existe en config
+        onSnapshot(doc(db, "config", "negocio"), (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.name) {
+                    currentCompanyName = data.name;
+                    document.getElementById('headerCompanyName').innerText = currentCompanyName;
+                    updateInitials(currentCompanyName);
+                }
+            }
+        });
+
         const cleanUrl = (url) => {
             if (!url) return "https://via.placeholder.com/400?text=PRODUCTOS+LS";
             return url.trim().replace('dl=0', 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
         };
 
-        // Sincronizar en tiempo real con la colección de perfumes que alimenta admin.html
-        function setupCatalogListener(uid) {
-            const q = query(collection(db, "perfumes"), where("ownerId", "==", uid));
-            
-            onSnapshot(q, (snap) => {
-                products = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // Ordenar alfabéticamente
-                products.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-                renderGrid();
-            });
-        }
+        // Escuchar cambios en la base de datos de productos
+        onSnapshot(query(collection(db, "perfumes"), orderBy("name", "asc")), (snap) => {
+            products = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderGrid();
+        });
 
-        // Dibujar el catálogo principal con los productos de admin.html
+        // Dibujar el catálogo principal
         function renderGrid() {
             const grid = document.getElementById('catalogGrid');
-            if (products.length === 0) {
-                grid.innerHTML = `<div class="col-span-2 text-center py-12 text-gray-400 text-xs uppercase font-bold">No hay productos registrados en el administrador aún.</div>`;
-                return;
-            }
-
             grid.innerHTML = products.map(p => {
                 const itemsFromThisProduct = cart.filter(item => item.pId === p.id).length;
                 return `
@@ -335,16 +335,15 @@
                     ${itemsFromThisProduct > 0 ? `<div class="badge-count">${itemsFromThisProduct}</div>` : ''}
                     <img src="${cleanUrl(p.img)}">
                     <h3 class="text-[9px] font-black uppercase italic tracking-tighter mb-1 truncate px-2">${p.name}</h3>
-                    <p class="text-[11px] font-bold text-black">$${p.priceNew || (p.variants && p.variants[0] ? p.variants[0].priceNew : '---')}</p>
+                    <p class="text-[11px] font-bold text-black">$${p.priceNew || '---'}</p>
                 </div>
             `}).join('');
             lucide.createIcons();
         }
 
-        // Abrir detalles de producto y sus variantes
+        // Abrir detalles de producto
         window.openModal = (id) => {
             currentProduct = products.find(p => p.id === id);
-            if (!currentProduct) return;
             document.getElementById('modalTitle').innerText = currentProduct.name;
             const modal = document.getElementById('productModal');
             modal.style.display = 'flex';
@@ -375,7 +374,6 @@
         // Alternar selección de variante
         window.toggleVariant = (vId) => {
             const variant = currentProduct.variants.find(v => (v.id || (v.title + v.size)) === vId);
-            if (!variant) return;
             const existingIndex = cart.findIndex(item => item.pId === currentProduct.id && item.vId === vId);
 
             if (existingIndex > -1) {
@@ -395,18 +393,13 @@
             updateCartUI();
         };
 
-        // Dibujar las variantes creadas en admin.html
+        // Dibujar las variantes en el modal
         function renderVariants() {
             const container = document.getElementById('variantsContainer');
             let variants = currentProduct.variants || [];
             
             if (currentModalFilter !== 'todos') {
-                variants = variants.filter(v => (v.gender || '').toLowerCase() === currentModalFilter.toLowerCase());
-            }
-
-            if (variants.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-gray-400 py-6 uppercase font-bold">No hay variantes en esta categoría</p>`;
-                return;
+                variants = variants.filter(v => (v.gender || '').toLowerCase() === currentModalFilter);
             }
 
             container.innerHTML = variants.map(v => {
@@ -419,7 +412,7 @@
                     <div class="flex-1">
                         <h4 class="font-black italic uppercase text-[10px] leading-tight">${v.title}</h4>
                         <div class="flex gap-2 items-center mt-0.5">
-                            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">${v.size || ''}</span>
+                            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">${v.size}</span>
                             <span class="text-[8px] font-extrabold px-1.5 py-0.5 bg-gray-100 rounded text-gray-600 uppercase">${v.gender || 'Unisex'}</span>
                         </div>
                         <p class="text-sm font-black mt-1">$${v.priceNew}</p>
@@ -449,7 +442,7 @@
             lucide.createIcons();
         }
 
-        // Enviar pedido consolidado por WhatsApp al número configurado en admin.html
+        // Enviar pedido consolidado por WhatsApp
         window.sendOrder = () => {
             if (cart.length === 0) return;
 
@@ -457,7 +450,7 @@
             
             let message = `¡Hola! 👋 Quisiera comprar estos productos en *${currentCompanyName}*:\n\n`;
             
-            cart.forEach((item) => {
+            cart.forEach((item, i) => {
                 message += `🔹 *${item.pName}*\n`;
                 message += `    Variante: ${item.vName} (${item.size})\n`;
                 message += `    Precio: $${item.price}\n\n`;
