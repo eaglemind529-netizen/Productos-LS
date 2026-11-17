@@ -151,7 +151,6 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 showToast("¡Inicio de sesión exitoso! Redirigiendo...", false);
-                // CORREGIDO: Apunta directo a index.html
                 setTimeout(() => window.location.href = "index.html", 1000);
             } catch (error) {
                 showToast("Error al iniciar sesión: " + error.message);
@@ -182,10 +181,8 @@
                 }, { merge: true });
 
                 showToast("¡Cuenta y negocio creados con éxito!", false);
-                // CORREGIDO: Apunta directo a index.html
                 setTimeout(() => window.location.href = "index.html", 1000);
             } catch (error) {
-                // Control amigable si el correo ya existe
                 if (error.code === 'auth/email-already-in-use') {
                     showToast("Este correo ya está registrado. Por favor, inicia sesión.");
                     switchTab('login');
@@ -217,7 +214,6 @@
                 }
 
                 showToast("¡Acceso con Google exitoso!", false);
-                // CORREGIDO: Apunta directo a index.html
                 setTimeout(() => window.location.href = "index.html", 1000);
             } catch (error) {
                 showToast("Error con Google: " + error.message);
