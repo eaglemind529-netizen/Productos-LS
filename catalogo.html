@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PRODUCTOS LS | Catálogo & Acceso</title>
+    <title>PRODUCTOS LS | Catálogo Multiproducto</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -15,29 +15,6 @@
             overflow-x: hidden;
         }
 
-        /* Estilos del portal de autenticación */
-        .auth-bg {
-            background-color: #f9f9f9;
-            min-height: 100vh;
-        }
-
-        .card {
-            background: white;
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.06);
-        }
-
-        .tab-btn {
-            transition: all 0.3s ease;
-        }
-
-        .tab-btn.active {
-            background-color: #000;
-            color: #fff;
-        }
-
-        /* Estilos del catálogo multiproducto */
         .product-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -101,10 +78,10 @@
             border-bottom: 1px solid #f0f0f0;
             background: #fff;
             overflow-x: auto;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
 
-        .modal-filter-bar::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+        .modal-filter-bar::-webkit-scrollbar { display: none; }
 
         .filter-btn {
             padding: 8px 14px;
@@ -189,7 +166,6 @@
             z-index: 1100;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             animation: slideUp 0.3s ease;
-            cursor: pointer;
         }
 
         @keyframes slideUp {
@@ -210,131 +186,38 @@
 </head>
 <body class="pb-32">
 
-    <!-- Portal de Autenticación (visible cuando no hay sesión iniciada) -->
-    <section id="authView" class="auth-bg flex items-center justify-center p-6">
-        <div class="w-full max-w-md space-y-6">
-            <!-- Logo Header -->
-            <div class="text-center space-y-2">
-                <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-white font-black italic mx-auto text-lg shadow-xl">LS</div>
-                <h1 class="text-xl font-black uppercase italic tracking-wider">PRODUCTOS LS</h1>
-                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Portal de Autenticación</p>
-            </div>
-
-            <!-- Notificación / Error Toast -->
-            <div id="toast" class="hidden p-4 rounded-2xl text-xs font-bold text-center transition-all"></div>
-
-            <!-- Contenedor Principal / Tarjeta -->
-            <div class="card">
-                <!-- Pestañas (Tabs) -->
-                <div class="grid grid-cols-2 gap-2 bg-gray-100 p-1.5 rounded-2xl mb-6">
-                    <button type="button" onclick="switchTab('login')" id="tabLogin" class="tab-btn active py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider">Iniciar Sesión</button>
-                    <button type="button" onclick="switchTab('register')" id="tabRegister" class="tab-btn py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-gray-500">Registrarse</button>
-                </div>
-
-                <!-- Formulario de Inicio de Sesión -->
-                <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Correo Electrónico</label>
-                        <input type="email" id="loginEmail" required placeholder="correo@ejemplo.com" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Contraseña</label>
-                        <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
-                    </div>
-                    <button type="submit" class="w-full bg-black text-white py-4 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg hover:bg-gray-800 transition">
-                        Ingresar al Sistema
-                    </button>
-                </form>
-
-                <!-- Formulario de Registro -->
-                <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Nombre Completo</label>
-                        <input type="text" id="regName" required placeholder="Tu Nombre" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Nombre del Negocio</label>
-                        <input type="text" id="regBusiness" required placeholder="Ej: PRODUCTOS LS" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Correo Electrónico</label>
-                        <input type="email" id="regEmail" required placeholder="correo@ejemplo.com" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Contraseña</label>
-                        <input type="password" id="regPassword" required placeholder="••••••••" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
-                    </div>
-                    <button type="submit" class="w-full bg-black text-white py-4 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg hover:bg-gray-800 transition">
-                        Crear Cuenta y Negocio
-                    </button>
-                </form>
-
-                <!-- Separador -->
-                <div class="relative flex py-5 items-center">
-                    <div class="flex-grow border-t border-gray-100"></div>
-                    <span class="flex-shrink mx-4 text-[9px] font-bold text-gray-400 uppercase tracking-widest">O continúa con</span>
-                    <div class="flex-grow border-t border-gray-100"></div>
-                </div>
-
-                <!-- Botón Google -->
-                <button type="button" onclick="handleGoogleSignIn()" class="w-full flex items-center justify-center gap-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-black py-3.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                    </svg>
-                    Google
-                </button>
-            </div>
+    <!-- Header -->
+    <header class="p-5 bg-white border-b border-gray-100 flex justify-between items-center sticky top-0 z-40">
+        <div class="flex items-center gap-2">
+            <a href="index.html" class="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold text-xs italic">LS</a>
+            <h1 id="headerBrandName" class="font-black text-[13px] uppercase tracking-tighter italic">PRODUCTOS LS</h1>
         </div>
-    </section>
+        <div class="relative">
+            <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+            <div id="cartCountBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</div>
+        </div>
+    </header>
 
-    <!-- Catálogo Multiproducto (visible cuando hay sesión iniciada) -->
-    <section id="catalogView" class="hidden">
-        <!-- Header -->
-        <header class="p-5 bg-white border-b border-gray-100 flex justify-between items-center sticky top-0 z-40">
-            <div class="flex items-center gap-2 min-w-0">
-                <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold text-xs italic shrink-0">LS</div>
-                <div class="min-w-0">
-                    <h1 id="catalogHeaderTitle" class="font-black text-[13px] uppercase tracking-tighter italic truncate">PRODUCTOS LS</h1>
-                    <p id="activeUserIndicator" class="text-[9px] font-bold text-gray-500 truncate">Usuario activo</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-3 shrink-0">
-                <button type="button" onclick="handleLogout()" class="text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-lg border border-black text-black hover:bg-black hover:text-white transition">
-                    Salir
-                </button>
-                <div class="relative">
-                    <i data-lucide="shopping-bag" class="w-6 h-6"></i>
-                    <div id="cartCountBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Estado de carga o ausencia de productos del usuario -->
-        <div id="catalogStatusMessage" class="hidden p-8 text-center text-xs font-bold text-gray-500"></div>
-
-        <!-- Grid de Catálogo -->
-        <div id="catalogGrid" class="product-grid"></div>
-    </section>
+    <!-- Grid de Catálogo -->
+    <div id="catalogGrid" class="product-grid"></div>
 
     <!-- Modal de Selección -->
     <div id="productModal">
-        <button type="button" onclick="closeModal()" class="close-btn">
+        <button onclick="closeModal()" class="close-btn">
             <i data-lucide="x" class="w-5 h-5"></i>
         </button>
 
         <div class="pt-14 px-6 pb-4">
             <h2 id="modalTitle" class="text-2xl font-black italic uppercase leading-none mb-1">---</h2>
-            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Elige tus favoritos</p>
+            <p id="modalDesc" class="text-xs text-gray-500 mt-1 hidden"></p>
+            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-2">Elige tus favoritos</p>
         </div>
 
         <div class="modal-filter-bar">
-            <button type="button" onclick="filterModalVariants('todos')" id="m-btn-todos" class="filter-btn active">Todos</button>
-            <button type="button" onclick="filterModalVariants('dama')" id="m-btn-dama" class="filter-btn">Dama</button>
-            <button type="button" onclick="filterModalVariants('caballero')" id="m-btn-caballero" class="filter-btn">Caballero</button>
-            <button type="button" onclick="filterModalVariants('unisex')" id="m-btn-unisex" class="filter-btn">Unisex</button>
+            <button onclick="filterModalVariants('todos')" id="m-btn-todos" class="filter-btn active">Todos</button>
+            <button onclick="filterModalVariants('dama')" id="m-btn-dama" class="filter-btn">Dama</button>
+            <button onclick="filterModalVariants('caballero')" id="m-btn-caballero" class="filter-btn">Caballero</button>
+            <button onclick="filterModalVariants('unisex')" id="m-btn-unisex" class="filter-btn">Unisex</button>
         </div>
 
         <div class="modal-scroll">
@@ -342,7 +225,7 @@
         </div>
 
         <div class="p-6 border-t border-gray-100 bg-white">
-            <button type="button" onclick="closeModal()" class="w-full bg-black text-white py-4 rounded-xl font-black uppercase text-[11px] tracking-widest">
+            <button onclick="closeModal()" class="w-full bg-black text-white py-4 rounded-xl font-black uppercase text-[11px] tracking-widest">
                 Confirmar Selección
             </button>
         </div>
@@ -362,27 +245,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import {
-            getAuth,
-            signInWithEmailAndPassword,
-            createUserWithEmailAndPassword,
-            signInWithPopup,
-            GoogleAuthProvider,
-            onAuthStateChanged,
-            signOut
-        } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import {
-            getFirestore,
-            doc,
-            setDoc,
-            getDoc,
-            collection,
-            onSnapshot,
-            query,
-            where
-        } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-        // Configuración única de Firebase compartida entre autenticación y catálogo
         const firebaseConfig = {
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
             authDomain: "apps-d45d6.firebaseapp.com",
@@ -395,281 +260,86 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const googleProvider = new GoogleAuthProvider();
 
-        let currentUser = null;
-        let currentUserProfile = null;
         let products = [];
         let cart = [];
         let currentProduct = null;
         let currentModalFilter = 'todos';
-
-        // Mapas para unificar resultados por campo de propiedad del usuario en 'perfumes'
-        let unsubscribeQueries = [];
-        let queryResultsMap = new Map();
+        let unsubscribeProducts = null;
 
         const cleanUrl = (url) => {
             if (!url) return "https://via.placeholder.com/400?text=PRODUCTOS+LS";
             return url.trim().replace('dl=0', 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
         };
 
-        function showToast(message, isError = true) {
-            const toast = document.getElementById('toast');
-            toast.innerText = message;
-            toast.className = `p-4 rounded-2xl text-xs font-bold text-center transition-all ${
-                isError
-                    ? 'bg-red-50 text-red-600 border border-red-100'
-                    : 'bg-green-50 text-green-600 border border-green-100'
-            }`;
-            toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 4000);
-        }
-
-        window.switchTab = (tab) => {
-            const lBtn = document.getElementById('tabLogin');
-            const rBtn = document.getElementById('tabRegister');
-            const lForm = document.getElementById('loginForm');
-            const rForm = document.getElementById('registerForm');
-
-            if (tab === 'login') {
-                lBtn.classList.add('active');
-                lBtn.classList.remove('text-gray-500');
-                rBtn.classList.remove('active');
-                rBtn.classList.add('text-gray-500');
-                lForm.classList.remove('hidden');
-                rForm.classList.add('hidden');
-            } else {
-                rBtn.classList.add('active');
-                rBtn.classList.remove('text-gray-500');
-                lBtn.classList.remove('active');
-                lBtn.classList.add('text-gray-500');
-                rForm.classList.remove('hidden');
-                lForm.classList.add('hidden');
-            }
-        };
-
-        // Guarda o recupera el perfil del usuario en Firestore ('users/{uid}')
-        async function ensureUserProfile(user, extraData = {}) {
-            const userRef = doc(db, "users", user.uid);
-            const snap = await getDoc(userRef);
-
-            if (snap.exists()) {
-                const existing = snap.data();
-                const updatedData = {
-                    uid: user.uid,
-                    email: user.email || existing.email || "",
-                    name: extraData.name || existing.name || user.displayName || "",
-                    businessName: extraData.businessName || existing.businessName || (user.displayName ? `${user.displayName} Shop` : "PRODUCTOS LS")
-                };
-                await setDoc(userRef, updatedData, { merge: true });
-                return updatedData;
-            } else {
-                const newProfile = {
-                    uid: user.uid,
-                    email: user.email || "",
-                    name: extraData.name || user.displayName || "Usuario",
-                    businessName: extraData.businessName || (user.displayName ? `${user.displayName} Shop` : "PRODUCTOS LS"),
-                    createdAt: new Date().toISOString()
-                };
-                await setDoc(userRef, newProfile);
-                return newProfile;
-            }
-        }
-
-        function updateCatalogIdentity(user, profile) {
-            const businessName = (profile && profile.businessName) ? profile.businessName : "PRODUCTOS LS";
-            document.getElementById('catalogHeaderTitle').innerText = businessName;
-            document.title = `${businessName} | Catálogo Multiproducto`;
-
-            const userLabel = (profile && profile.name)
-                ? `${profile.name} (${user.email || user.uid})`
-                : (user.email || user.uid);
-            document.getElementById('activeUserIndicator').innerText = userLabel;
-        }
-
-        function stopProductListeners() {
-            unsubscribeQueries.forEach((unsub) => {
-                if (typeof unsub === 'function') unsub();
-            });
-            unsubscribeQueries = [];
-            queryResultsMap.clear();
-        }
-
-        function mergeAndRenderUserProducts() {
-            const mergedById = new Map();
-            queryResultsMap.forEach((docsMap) => {
-                docsMap.forEach((data, docId) => {
-                    mergedById.set(docId, { id: docId, ...data });
-                });
-            });
-
-            products = Array.from(mergedById.values()).sort((a, b) =>
-                String(a.name || "").localeCompare(String(b.name || ""), "es", { sensitivity: "base" })
-            );
-
-            // Limpiar artículos del carrito que ya no pertenezcan a los productos cargados del usuario
-            const validProductIds = new Set(products.map((p) => p.id));
-            cart = cart.filter((item) => validProductIds.has(item.pId));
-            updateCartUI();
-
-            const statusEl = document.getElementById('catalogStatusMessage');
-            if (!currentUser) {
-                statusEl.innerText = "Debes iniciar sesión para ver tus productos.";
-                statusEl.classList.remove('hidden');
-            } else if (products.length === 0) {
-                statusEl.innerText = "No hay productos registrados para este usuario.";
-                statusEl.classList.remove('hidden');
-            } else {
-                statusEl.innerText = "";
-                statusEl.classList.add('hidden');
-            }
-
-            renderGrid();
-        }
-
-        // Suscribe consultas en 'perfumes' filtradas por el usuario autenticado
-        function subscribeToUserProducts(user) {
-            stopProductListeners();
-            if (!user) {
-                products = [];
-                mergeAndRenderUserProducts();
-                return;
-            }
-
-            const perfumesCol = collection(db, "perfumes");
-            const filters = [
-                { key: "userId", value: user.uid },
-                { key: "uid", value: user.uid },
-                { key: "ownerId", value: user.uid }
-            ];
-
-            if (user.email) {
-                filters.push({ key: "email", value: user.email });
-            }
-
-            filters.forEach(({ key, value }) => {
-                const mapKey = `${key}:${value}`;
-                queryResultsMap.set(mapKey, new Map());
-
-                const q = query(perfumesCol, where(key, "==", value));
-                const unsub = onSnapshot(
-                    q,
-                    (snap) => {
-                        const docMap = new Map();
-                        snap.forEach((d) => docMap.set(d.id, d.data()));
-                        queryResultsMap.set(mapKey, docMap);
-                        mergeAndRenderUserProducts();
-                    },
-                    (err) => {
-                        console.error(`Error consultando perfumes por ${key}:`, err);
-                    }
-                );
-
-                unsubscribeQueries.push(unsub);
-            });
-        }
-
-        window.handleLogin = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-
-            try {
-                const cred = await signInWithEmailAndPassword(auth, email, password);
-                await ensureUserProfile(cred.user);
-                showToast("¡Inicio de sesión exitoso!", false);
-            } catch (error) {
-                showToast("Error al iniciar sesión: " + error.message);
-            }
-        };
-
-        window.handleRegister = async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('regName').value.trim();
-            const business = document.getElementById('regBusiness').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value;
-
-            try {
-                const cred = await createUserWithEmailAndPassword(auth, email, password);
-                await ensureUserProfile(cred.user, {
-                    name: name,
-                    businessName: business
-                });
-                showToast("¡Cuenta y negocio creados con éxito!", false);
-            } catch (error) {
-                if (error.code === 'auth/email-already-in-use') {
-                    showToast("Este correo ya está registrado. Por favor, inicia sesión.");
-                    switchTab('login');
-                    document.getElementById('loginEmail').value = email;
-                } else {
-                    showToast("Error en el registro: " + error.message);
+        function getProductPriceText(p) {
+            const variants = Array.isArray(p.variants) ? p.variants : [];
+            if (variants.length > 0) {
+                const prices = variants
+                    .map(v => parseFloat(v.priceNew))
+                    .filter(n => !Number.isNaN(n));
+                if (prices.length > 0) {
+                    return `$${Math.min(...prices).toFixed(2)}`;
                 }
             }
-        };
-
-        window.handleGoogleSignIn = async () => {
-            try {
-                const result = await signInWithPopup(auth, googleProvider);
-                await ensureUserProfile(result.user);
-                showToast("¡Acceso con Google exitoso!", false);
-            } catch (error) {
-                showToast("Error con Google: " + error.message);
+            if (p.priceNew !== undefined && p.priceNew !== null && p.priceNew !== '') {
+                const num = parseFloat(p.priceNew);
+                return Number.isNaN(num) ? `$${p.priceNew}` : `$${num.toFixed(2)}`;
             }
-        };
+            return '---';
+        }
 
-        window.handleLogout = async () => {
+        async function loadBrandName(user) {
             try {
-                await signOut(auth);
-            } catch (error) {
-                console.error("Error al cerrar sesión:", error);
+                if (user) {
+                    const userSnap = await getDoc(doc(db, "users", user.uid));
+                    if (userSnap.exists() && userSnap.data().businessName) {
+                        document.getElementById('headerBrandName').innerText = userSnap.data().businessName;
+                        return;
+                    }
+                }
+                const bizSnap = await getDoc(doc(db, "config", "negocio"));
+                if (bizSnap.exists() && bizSnap.data().name) {
+                    document.getElementById('headerBrandName').innerText = bizSnap.data().name;
+                }
+            } catch (e) {
+                console.error("Error cargando nombre de empresa:", e);
             }
-        };
+        }
 
-        // Observador central de sesión: muestra login sin sesión y catálogo al autenticarse
-        onAuthStateChanged(auth, async (user) => {
-            const authView = document.getElementById('authView');
-            const catalogView = document.getElementById('catalogView');
-            const statusEl = document.getElementById('catalogStatusMessage');
+        function subscribeToProducts(ownerId) {
+            if (unsubscribeProducts) {
+                unsubscribeProducts();
+                unsubscribeProducts = null;
+            }
 
-            stopProductListeners();
-            cart = [];
-            updateCartUI();
+            const q = ownerId
+                ? query(collection(db, "perfumes"), where("ownerId", "==", ownerId))
+                : collection(db, "perfumes");
 
-            if (!user) {
-                currentUser = null;
-                currentUserProfile = null;
-                products = [];
+            unsubscribeProducts = onSnapshot(q, (snap) => {
+                products = snap.docs
+                    .map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
                 renderGrid();
-                catalogView.classList.add('hidden');
-                authView.classList.remove('hidden');
-                lucide.createIcons();
-                return;
+            });
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            const isTestMode = localStorage.getItem('testMode') === 'true';
+            await loadBrandName(user);
+
+            if (user) {
+                subscribeToProducts(user.uid);
+            } else if (isTestMode) {
+                const bizSnap = await getDoc(doc(db, "config", "negocio"));
+                const ownerId = bizSnap.exists() ? bizSnap.data().ownerId : null;
+                subscribeToProducts(ownerId);
+            } else {
+                subscribeToProducts(null);
             }
-
-            currentUser = user;
-            authView.classList.add('hidden');
-            catalogView.classList.remove('hidden');
-            statusEl.innerText = "Cargando productos del usuario...";
-            statusEl.classList.remove('hidden');
-
-            try {
-                currentUserProfile = await ensureUserProfile(user);
-            } catch (err) {
-                console.error("Error obteniendo perfil de usuario:", err);
-                currentUserProfile = {
-                    uid: user.uid,
-                    email: user.email || "",
-                    businessName: "PRODUCTOS LS"
-                };
-            }
-
-            updateCatalogIdentity(user, currentUserProfile);
-            subscribeToUserProducts(user);
-            lucide.createIcons();
         });
 
-        // Dibujar el catálogo principal
         function renderGrid() {
             const grid = document.getElementById('catalogGrid');
             grid.innerHTML = products.map(p => {
@@ -678,18 +348,28 @@
                 <div class="product-card" onclick="openModal('${p.id}')">
                     ${itemsFromThisProduct > 0 ? `<div class="badge-count">${itemsFromThisProduct}</div>` : ''}
                     <img src="${cleanUrl(p.img)}" alt="${p.name || ''}">
-                    <h3 class="text-[9px] font-black uppercase italic tracking-tighter mb-1 truncate px-2">${p.name || ''}</h3>
-                    <p class="text-[11px] font-bold text-black">$${p.priceNew || '---'}</p>
+                    <h3 class="text-[9px] font-black uppercase italic tracking-tighter mb-1 truncate px-2">${p.name || '---'}</h3>
+                    <p class="text-[11px] font-bold text-black">${getProductPriceText(p)}</p>
                 </div>
-            `}).join('');
+            `;
+            }).join('');
             lucide.createIcons();
         }
 
-        // Abrir detalles de producto
         window.openModal = (id) => {
             currentProduct = products.find(p => p.id === id);
             if (!currentProduct) return;
             document.getElementById('modalTitle').innerText = currentProduct.name || '---';
+
+            const descEl = document.getElementById('modalDesc');
+            if (currentProduct.description && currentProduct.description.trim()) {
+                descEl.innerText = currentProduct.description.trim();
+                descEl.classList.remove('hidden');
+            } else {
+                descEl.innerText = '';
+                descEl.classList.add('hidden');
+            }
+
             const modal = document.getElementById('productModal');
             modal.style.display = 'flex';
             setTimeout(() => modal.classList.add('active'), 10);
@@ -697,7 +377,6 @@
             document.body.style.overflow = 'hidden';
         };
 
-        // Cerrar modal
         window.closeModal = () => {
             const modal = document.getElementById('productModal');
             modal.classList.remove('active');
@@ -708,7 +387,6 @@
             }, 400);
         };
 
-        // Filtro dentro del modal
         window.filterModalVariants = (cat) => {
             currentModalFilter = cat;
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -716,10 +394,9 @@
             renderVariants();
         };
 
-        // Alternar selección de variante (tocar para añadir, tocar para quitar)
         window.toggleVariant = (vId) => {
-            if (!currentProduct || !Array.isArray(currentProduct.variants)) return;
-            const variant = currentProduct.variants.find(v => (v.id || (v.title + v.size)) === vId);
+            const variants = Array.isArray(currentProduct.variants) ? currentProduct.variants : [];
+            const variant = variants.find(v => (v.id || (v.title + v.size)) === vId);
             if (!variant) return;
 
             const existingIndex = cart.findIndex(item => item.pId === currentProduct.id && item.vId === vId);
@@ -734,21 +411,16 @@
                     vName: variant.title,
                     size: variant.size,
                     price: parseFloat(variant.priceNew) || 0,
-                    wa: currentProduct.whatsapp || (currentUserProfile && currentUserProfile.whatsapp) || "584120000000"
+                    wa: (currentProduct.whatsapp || "584120000000").replace(/\D/g, '')
                 });
             }
             renderVariants();
             updateCartUI();
         };
 
-        // Dibujar las variantes en el modal
         function renderVariants() {
             const container = document.getElementById('variantsContainer');
-            if (!currentProduct) {
-                container.innerHTML = '';
-                return;
-            }
-            let variants = currentProduct.variants || [];
+            let variants = Array.isArray(currentProduct.variants) ? currentProduct.variants : [];
 
             if (currentModalFilter !== 'todos') {
                 variants = variants.filter(v => (v.gender || '').toLowerCase() === currentModalFilter);
@@ -757,24 +429,30 @@
             container.innerHTML = variants.map(v => {
                 const vId = v.id || (v.title + v.size);
                 const isSelected = cart.some(item => item.pId === currentProduct.id && item.vId === vId);
+                const priceNewNum = parseFloat(v.priceNew) || 0;
+                const priceOldNum = parseFloat(v.priceOld);
+                const hasOldPrice = !Number.isNaN(priceOldNum) && priceOldNum > priceNewNum;
 
                 return `
                 <div class="variant-card ${isSelected ? 'selected' : ''}" onclick="toggleVariant('${vId}')">
-                    <img src="${cleanUrl(v.img || currentProduct.img)}" alt="${v.title || ''}" class="w-12 h-12 object-contain rounded-lg">
+                    <img src="${cleanUrl(v.img || currentProduct.img)}" class="w-12 h-12 object-contain rounded-lg" alt="${v.title || ''}">
                     <div class="flex-1">
                         <h4 class="font-black italic uppercase text-[10px] leading-tight">${v.title || ''}</h4>
                         <div class="flex gap-2 items-center mt-0.5">
                             <span class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">${v.size || ''}</span>
                             <span class="text-[8px] font-extrabold px-1.5 py-0.5 bg-gray-100 rounded text-gray-600 uppercase">${v.gender || 'Unisex'}</span>
                         </div>
-                        <p class="text-sm font-black mt-1">$${v.priceNew || '---'}</p>
+                        <div class="flex items-center gap-2 mt-1">
+                            ${hasOldPrice ? `<span class="text-xs font-bold line-through text-red-400">$${priceOldNum.toFixed(2)}</span>` : ''}
+                            <p class="text-sm font-black">$${priceNewNum.toFixed(2)}</p>
+                        </div>
                     </div>
                     <div class="selector-dot"></div>
                 </div>
-            `}).join('');
+            `;
+            }).join('');
         }
 
-        // Actualizar la barra negra de abajo
         function updateCartUI() {
             const total = cart.reduce((sum, item) => sum + item.price, 0);
             const count = cart.length;
@@ -794,21 +472,18 @@
             lucide.createIcons();
         }
 
-        // Enviar pedido consolidado por WhatsApp
         window.sendOrder = () => {
             if (cart.length === 0) return;
 
-            const targetPhone = cart[0].wa;
-            const businessLabel = (currentUserProfile && currentUserProfile.businessName)
-                ? currentUserProfile.businessName
-                : "PRODUCTOS LS";
+            const brandName = document.getElementById('headerBrandName').innerText || 'PRODUCTOS LS';
+            const targetPhone = cart[0].wa || "584120000000";
 
-            let message = `¡Hola! 👋 Quisiera comprar estos perfumes en *${businessLabel}*:\n\n`;
+            let message = `¡Hola! 👋 Quisiera comprar estos perfumes en *${brandName}*:\n\n`;
 
             cart.forEach((item) => {
                 message += `🔹 *${item.pName}*\n`;
                 message += `   Variante: ${item.vName} (${item.size})\n`;
-                message += `   Precio: $${item.price}\n\n`;
+                message += `   Precio: $${item.price.toFixed(2)}\n\n`;
             });
 
             const total = cart.reduce((sum, item) => sum + item.price, 0);
@@ -818,8 +493,6 @@
 
             window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`, '_blank');
         };
-
-        lucide.createIcons();
     </script>
 </body>
 </html>
