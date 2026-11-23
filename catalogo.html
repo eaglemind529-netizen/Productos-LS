@@ -186,20 +186,54 @@
 </head>
 <body class="pb-32">
 
-    <!-- Header -->
-    <header class="p-5 bg-white border-b border-gray-100 flex justify-between items-center sticky top-0 z-40">
-        <div class="flex items-center gap-2">
-            <a href="index.html" class="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold text-xs italic">LS</a>
-            <h1 id="headerBrandName" class="font-black text-[13px] uppercase tracking-tighter italic">PRODUCTOS LS</h1>
+    <!-- Pantalla de control / ambiente de prueba si no hay sesión -->
+    <div id="authCheckScreen" class="fixed inset-0 bg-[#f9f9f9] z-50 flex items-center justify-center p-6 transition-opacity duration-300">
+        <div class="max-w-md w-full bg-white rounded-3xl p-6 shadow-xl text-center space-y-6 border border-gray-100">
+            <div class="w-16 h-16 bg-black rounded-2xl flex items-center justify-center text-white font-black italic mx-auto text-xl shadow-xl">LS</div>
+            <div class="space-y-2">
+                <h2 class="text-xl font-black uppercase italic tracking-wider">Acceso Requerido</h2>
+                <p class="text-xs text-gray-500 font-bold">Inicia sesión con tu cuenta o activa el modo de prueba para visualizar el catálogo.</p>
+            </div>
+            <div class="space-y-3">
+                <a href="login.html" class="block w-full bg-black text-white py-4 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg hover:bg-gray-800 transition">
+                    Ir al Login
+                </a>
+                <button onclick="enableTestMode()" class="w-full bg-gray-100 hover:bg-gray-200 text-black py-3.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition">
+                    Activar Modo de Prueba
+                </button>
+            </div>
         </div>
-        <div class="relative">
-            <i data-lucide="shopping-bag" class="w-6 h-6"></i>
-            <div id="cartCountBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</div>
-        </div>
-    </header>
+    </div>
 
-    <!-- Grid de Catálogo -->
-    <div id="catalogGrid" class="product-grid"></div>
+    <!-- Contenedor Principal del Catálogo -->
+    <div id="mainCatalogView" class="opacity-0 transition-opacity duration-300">
+        <!-- Header -->
+        <header class="p-5 bg-white border-b border-gray-100 flex justify-between items-center sticky top-0 z-40">
+            <div class="flex items-center gap-2.5">
+                <a href="index.html" id="headerLogoBadge" class="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold text-xs italic">LS</a>
+                <div>
+                    <h1 id="headerBrandName" class="font-black text-[13px] uppercase tracking-tighter italic leading-none">PRODUCTOS LS</h1>
+                    <p id="headerSubStatus" class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">Catálogo</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="admin.html" class="text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition">Admin</a>
+                <button onclick="logout()" class="text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition">Salir</button>
+                <div class="relative">
+                    <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                    <div id="cartCountBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Aviso si no hay productos -->
+        <div id="catalogEmptyMsg" class="hidden p-8 text-center text-xs font-bold text-gray-400">
+            No hay productos registrados en el panel de administración para esta cuenta.
+        </div>
+
+        <!-- Grid de Catálogo -->
+        <div id="catalogGrid" class="product-grid"></div>
+    </div>
 
     <!-- Modal de Selección -->
     <div id="productModal">
@@ -245,7 +279,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -261,6 +295,23 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Datos de respaldo solo para cuando se active "Modo de Prueba" sin sesión ni documentos aún
+        const sampleAdminProducts = [
+            {
+                id: "demo-1",
+                name: "Perfumes Árabes",
+                whatsapp: "584120000000",
+                category: "unisex",
+                description: "Selección de fragancias intensas y duraderas.",
+                img: "https://via.placeholder.com/400?text=Perfumes+Arabes",
+                variants: [
+                    { id: "v1", title: "Chocolate", gender: "Unisex", size: "100ml", priceOld: 45, priceNew: 32, img: "" },
+                    { id: "v2", title: "Oud Noir", gender: "Caballero", size: "100ml", priceOld: 50, priceNew: 38, img: "" },
+                    { id: "v3", title: "Amber Rose", gender: "Dama", size: "100ml", priceOld: 42, priceNew: 30, img: "" }
+                ]
+            }
+        ];
+
         let products = [];
         let cart = [];
         let currentProduct = null;
@@ -271,6 +322,37 @@
             if (!url) return "https://via.placeholder.com/400?text=PRODUCTOS+LS";
             return url.trim().replace('dl=0', 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
         };
+
+        function updateBranding(businessName) {
+            const name = (businessName || "PRODUCTOS LS").trim();
+            document.getElementById('headerBrandName').innerText = name;
+            const words = name.split(/\s+/);
+            let initials = "LS";
+            if (words.length >= 2) {
+                initials = (words[0][0] + words[1][0]).toUpperCase();
+            } else if (words.length === 1 && words[0].length >= 2) {
+                initials = words[0].substring(0, 2).toUpperCase();
+            }
+            document.getElementById('headerLogoBadge').innerText = initials;
+        }
+
+        function showAuthScreen() {
+            const screen = document.getElementById('authCheckScreen');
+            const main = document.getElementById('mainCatalogView');
+            screen.style.display = 'flex';
+            setTimeout(() => { screen.style.opacity = '1'; }, 10);
+            main.style.opacity = '0';
+        }
+
+        function showCatalogScreen() {
+            const screen = document.getElementById('authCheckScreen');
+            const main = document.getElementById('mainCatalogView');
+            screen.style.opacity = '0';
+            setTimeout(() => {
+                screen.style.display = 'none';
+                main.style.opacity = '1';
+            }, 300);
+        }
 
         function getProductPriceText(p) {
             const variants = Array.isArray(p.variants) ? p.variants : [];
@@ -289,25 +371,7 @@
             return '---';
         }
 
-        async function loadBrandName(user) {
-            try {
-                if (user) {
-                    const userSnap = await getDoc(doc(db, "users", user.uid));
-                    if (userSnap.exists() && userSnap.data().businessName) {
-                        document.getElementById('headerBrandName').innerText = userSnap.data().businessName;
-                        return;
-                    }
-                }
-                const bizSnap = await getDoc(doc(db, "config", "negocio"));
-                if (bizSnap.exists() && bizSnap.data().name) {
-                    document.getElementById('headerBrandName').innerText = bizSnap.data().name;
-                }
-            } catch (e) {
-                console.error("Error cargando nombre de empresa:", e);
-            }
-        }
-
-        function subscribeToProducts(ownerId) {
+        function listenAdminProducts(ownerId, fallbackToSample = false) {
             if (unsubscribeProducts) {
                 unsubscribeProducts();
                 unsubscribeProducts = null;
@@ -318,27 +382,101 @@
                 : collection(db, "perfumes");
 
             unsubscribeProducts = onSnapshot(q, (snap) => {
-                products = snap.docs
+                const docs = snap.docs
                     .map(d => ({ id: d.id, ...d.data() }))
                     .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+
+                if (docs.length > 0) {
+                    products = docs;
+                    document.getElementById('catalogEmptyMsg').classList.add('hidden');
+                } else if (fallbackToSample) {
+                    products = sampleAdminProducts;
+                    document.getElementById('catalogEmptyMsg').classList.add('hidden');
+                } else {
+                    products = [];
+                    document.getElementById('catalogEmptyMsg').classList.remove('hidden');
+                }
                 renderGrid();
+            }, (err) => {
+                console.error("Error escuchando productos:", err);
+                if (fallbackToSample) {
+                    products = sampleAdminProducts;
+                    renderGrid();
+                }
             });
+        }
+
+        async function loadUserOrBusinessBrand(user) {
+            try {
+                if (user) {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists() && userDoc.data().businessName) {
+                        updateBranding(userDoc.data().businessName);
+                        return;
+                    }
+                }
+                const bizDoc = await getDoc(doc(db, "config", "negocio"));
+                if (bizDoc.exists() && bizDoc.data().name) {
+                    updateBranding(bizDoc.data().name);
+                }
+            } catch (e) {
+                console.error("Error cargando empresa:", e);
+            }
         }
 
         onAuthStateChanged(auth, async (user) => {
             const isTestMode = localStorage.getItem('testMode') === 'true';
-            await loadBrandName(user);
+
+            if (!user && !isTestMode) {
+                if (unsubscribeProducts) {
+                    unsubscribeProducts();
+                    unsubscribeProducts = null;
+                }
+                showAuthScreen();
+                lucide.createIcons();
+                return;
+            }
+
+            showCatalogScreen();
+            await loadUserOrBusinessBrand(user);
 
             if (user) {
-                subscribeToProducts(user.uid);
-            } else if (isTestMode) {
-                const bizSnap = await getDoc(doc(db, "config", "negocio"));
-                const ownerId = bizSnap.exists() ? bizSnap.data().ownerId : null;
-                subscribeToProducts(ownerId);
+                document.getElementById('headerSubStatus').innerText = user.email || "Catálogo";
+                listenAdminProducts(user.uid, false);
             } else {
-                subscribeToProducts(null);
+                document.getElementById('headerSubStatus').innerText = "Modo de Prueba";
+                const bizDoc = await getDoc(doc(db, "config", "negocio"));
+                const ownerId = bizDoc.exists() ? bizDoc.data().ownerId : null;
+                listenAdminProducts(ownerId, true);
             }
+            lucide.createIcons();
         });
+
+        window.enableTestMode = async () => {
+            localStorage.setItem('testMode', 'true');
+            showCatalogScreen();
+            updateBranding("PRODUCTOS LS (MODO PRUEBA)");
+            document.getElementById('headerSubStatus').innerText = "Modo de Prueba";
+            await loadUserOrBusinessBrand(null);
+            const bizDoc = await getDoc(doc(db, "config", "negocio"));
+            const ownerId = bizDoc.exists() ? bizDoc.data().ownerId : null;
+            listenAdminProducts(ownerId, true);
+            lucide.createIcons();
+        };
+
+        window.logout = async () => {
+            localStorage.removeItem('testMode');
+            if (unsubscribeProducts) {
+                unsubscribeProducts();
+                unsubscribeProducts = null;
+            }
+            try {
+                await signOut(auth);
+            } catch (e) {
+                console.error("Error al cerrar sesión:", e);
+            }
+            window.location.href = "login.html";
+        };
 
         function renderGrid() {
             const grid = document.getElementById('catalogGrid');
@@ -493,6 +631,8 @@
 
             window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`, '_blank');
         };
+
+        lucide.createIcons();
     </script>
 </body>
 </html>
