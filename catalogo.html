@@ -8,13 +8,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        /* Tipografía y base en fondo blanco */
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #ffffff;
-            color: #000;
+            color: #000000;
             overflow-x: hidden;
         }
 
+        /* Pestañas del portal de acceso embebido */
+        .tab-btn {
+            transition: all 0.25s ease;
+        }
+
+        .tab-btn.active {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        /* Cuadrícula principal de 2 columnas */
         .product-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -23,19 +35,24 @@
         }
 
         .product-card {
-            background: white;
+            background: #ffffff;
             padding: 15px;
             text-align: center;
             position: relative;
             cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .product-card:hover {
+            background-color: #fafafa;
         }
 
         .badge-count {
             position: absolute;
             top: 10px;
             right: 10px;
-            background: #000;
-            color: #fff;
+            background: #000000;
+            color: #ffffff;
             font-size: 10px;
             font-weight: 800;
             width: 20px;
@@ -44,21 +61,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid white;
+            border: 2px solid #ffffff;
         }
 
         .product-card img {
             width: 100%;
-            aspect-ratio: 1/1;
+            aspect-ratio: 1 / 1;
             object-fit: contain;
             margin-bottom: 8px;
         }
 
-        /* Modal */
+        /* Modal deslizable de variantes */
         #productModal {
             position: fixed;
             inset: 0;
-            background: white;
+            background: #ffffff;
             z-index: 1000;
             display: none;
             flex-direction: column;
@@ -76,12 +93,14 @@
             padding: 10px;
             gap: 6px;
             border-bottom: 1px solid #f0f0f0;
-            background: #fff;
+            background: #ffffff;
             overflow-x: auto;
             scrollbar-width: none;
         }
 
-        .modal-filter-bar::-webkit-scrollbar { display: none; }
+        .modal-filter-bar::-webkit-scrollbar {
+            display: none;
+        }
 
         .filter-btn {
             padding: 8px 14px;
@@ -89,16 +108,17 @@
             font-size: 9px;
             font-weight: 800;
             text-transform: uppercase;
-            color: #999;
+            color: #999999;
             background: #f9f9f9;
             white-space: nowrap;
             border: 1px solid transparent;
+            cursor: pointer;
         }
 
         .filter-btn.active {
-            background: #000;
-            color: #fff;
-            border-color: #000;
+            background: #000000;
+            color: #ffffff;
+            border-color: #000000;
         }
 
         .modal-scroll {
@@ -107,13 +127,13 @@
             padding: 15px;
         }
 
-        /* Variante Card */
+        /* Tarjeta de variante */
         .variant-card {
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 12px;
-            background: #fff;
+            background: #ffffff;
             border-radius: 18px;
             border: 2px solid #f0f0f0;
             margin-bottom: 10px;
@@ -122,7 +142,7 @@
         }
 
         .variant-card.selected {
-            border-color: #000;
+            border-color: #000000;
             background: #fafafa;
         }
 
@@ -130,7 +150,7 @@
             width: 22px;
             height: 22px;
             border-radius: 50%;
-            border: 2px solid #ddd;
+            border: 2px solid #dddddd;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -138,39 +158,46 @@
         }
 
         .variant-card.selected .selector-dot {
-            border-color: #000;
-            background: #000;
+            border-color: #000000;
+            background: #000000;
         }
 
         .variant-card.selected .selector-dot::after {
             content: '';
             width: 7px;
             height: 7px;
-            background: white;
+            background: #ffffff;
             border-radius: 50%;
         }
 
-        /* Barra de Carrito */
+        /* Barra inferior flotante de pedido */
         #cartBar {
             position: fixed;
             bottom: 20px;
             left: 20px;
             right: 20px;
-            background: #000;
-            color: white;
+            background: #000000;
+            color: #ffffff;
             padding: 16px 22px;
             border-radius: 20px;
             display: none;
             justify-content: space-between;
             align-items: center;
             z-index: 1100;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             animation: slideUp 0.3s ease;
+            cursor: pointer;
         }
 
         @keyframes slideUp {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .close-btn {
@@ -181,25 +208,112 @@
             background: #f0f0f0;
             border-radius: 50%;
             padding: 8px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body class="pb-32">
 
-    <!-- Pantalla de control / ambiente de prueba si no hay sesión -->
-    <div id="authCheckScreen" class="fixed inset-0 bg-[#f9f9f9] z-50 flex items-center justify-center p-6 transition-opacity duration-300">
-        <div class="max-w-md w-full bg-white rounded-3xl p-6 shadow-xl text-center space-y-6 border border-gray-100">
-            <div class="w-16 h-16 bg-black rounded-2xl flex items-center justify-center text-white font-black italic mx-auto text-xl shadow-xl">LS</div>
-            <div class="space-y-2">
-                <h2 class="text-xl font-black uppercase italic tracking-wider">Acceso Requerido</h2>
-                <p class="text-xs text-gray-500 font-bold">Inicia sesión con tu cuenta o activa el modo de prueba para visualizar el catálogo.</p>
+    <!-- Pantalla de acceso y login embebido en el mismo ambiente -->
+    <div id="authCheckScreen" class="fixed inset-0 bg-[#f9f9f9] z-50 flex items-center justify-center p-6 overflow-y-auto transition-opacity duration-300">
+        <div class="max-w-md w-full bg-white rounded-3xl p-6 shadow-xl space-y-6 border border-gray-100 my-auto">
+
+            <!-- Vista inicial: elegir Ir al Login (embebido) o Activar Modo de Prueba -->
+            <div id="gateChoiceView" class="text-center space-y-6">
+                <div class="w-16 h-16 bg-black rounded-2xl flex items-center justify-center text-white font-black italic mx-auto text-xl shadow-xl">LS</div>
+                <div class="space-y-2">
+                    <h2 class="text-xl font-black uppercase italic tracking-wider">Acceso Requerido</h2>
+                    <p class="text-xs text-gray-500 font-bold">Inicia sesión con tu cuenta aquí mismo o activa el modo de prueba para visualizar el catálogo.</p>
+                </div>
+                <div class="space-y-3">
+                    <button type="button" onclick="openInlineAuth()" class="block w-full bg-black text-white py-4 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg hover:bg-gray-800 transition cursor-pointer">
+                        Ir al Login
+                    </button>
+                    <button type="button" onclick="enableTestMode()" class="w-full bg-gray-100 hover:bg-gray-200 text-black py-3.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer">
+                        Activar Modo de Prueba
+                    </button>
+                </div>
             </div>
-            <div class="space-y-3">
-                <a href="login.html" class="block w-full bg-black text-white py-4 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg hover:bg-gray-800 transition">
-                    Ir al Login
-                </a>
-                <button onclick="enableTestMode()" class="w-full bg-gray-100 hover:bg-gray-200 text-black py-3.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition">
-                    Activar Modo de Prueba
+
+            <!-- Vista de login / registro embebida sin salir de este ambiente -->
+            <div id="inlineAuthView" class="hidden space-y-5">
+                <div class="flex items-center justify-between">
+                    <button type="button" onclick="backToChoice()" class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-gray-500 hover:text-black transition cursor-pointer">
+                        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                        <span>Volver</span>
+                    </button>
+                    <span class="text-[9px] font-black uppercase tracking-widest text-gray-400">Acceso Directo</span>
+                </div>
+
+                <div class="text-center space-y-1">
+                    <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-white font-black italic mx-auto text-lg shadow-lg">LS</div>
+                    <h2 class="text-lg font-black uppercase italic tracking-wider">PRODUCTOS LS</h2>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Portal de Autenticación</p>
+                </div>
+
+                <!-- Notificación de estado de autenticación -->
+                <div id="authToast" class="hidden p-3.5 rounded-2xl text-xs font-bold text-center"></div>
+
+                <!-- Pestañas Iniciar Sesión / Registrarse -->
+                <div class="grid grid-cols-2 gap-2 bg-gray-100 p-1.5 rounded-2xl">
+                    <button type="button" onclick="switchAuthTab('login')" id="tabLogin" class="tab-btn active py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer">Iniciar Sesión</button>
+                    <button type="button" onclick="switchAuthTab('register')" id="tabRegister" class="tab-btn py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-gray-500 cursor-pointer">Registrarse</button>
+                </div>
+
+                <!-- Formulario de Inicio de Sesión -->
+                <form id="inlineLoginForm" onsubmit="handleInlineLogin(event)" class="space-y-3.5">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Correo Electrónico</label>
+                        <input type="email" id="loginEmail" required placeholder="correo@ejemplo.com" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Contraseña</label>
+                        <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
+                    </div>
+                    <button type="submit" class="w-full bg-black text-white py-4 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg hover:bg-gray-800 transition cursor-pointer">
+                        Ingresar al Catálogo
+                    </button>
+                </form>
+
+                <!-- Formulario de Registro -->
+                <form id="inlineRegisterForm" onsubmit="handleInlineRegister(event)" class="space-y-3.5 hidden">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Nombre Completo</label>
+                        <input type="text" id="regName" required placeholder="Tu Nombre" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Nombre del Negocio</label>
+                        <input type="text" id="regBusiness" required placeholder="Ej: PRODUCTOS LS" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Correo Electrónico</label>
+                        <input type="email" id="regEmail" required placeholder="correo@ejemplo.com" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Contraseña</label>
+                        <input type="password" id="regPassword" required placeholder="••••••••" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
+                    </div>
+                    <button type="submit" class="w-full bg-black text-white py-4 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg hover:bg-gray-800 transition cursor-pointer">
+                        Crear Cuenta y Negocio
+                    </button>
+                </form>
+
+                <!-- Separador -->
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-gray-100"></div>
+                    <span class="flex-shrink mx-3 text-[9px] font-bold text-gray-400 uppercase tracking-widest">O continúa con</span>
+                    <div class="flex-grow border-t border-gray-100"></div>
+                </div>
+
+                <!-- Botón Google -->
+                <button type="button" onclick="handleInlineGoogleSignIn()" class="w-full flex items-center justify-center gap-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-black py-3.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition cursor-pointer">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                    </svg>
+                    Google
                 </button>
             </div>
         </div>
@@ -207,18 +321,17 @@
 
     <!-- Contenedor Principal del Catálogo -->
     <div id="mainCatalogView" class="opacity-0 transition-opacity duration-300">
-        <!-- Header -->
+        <!-- Encabezado con nombre e iniciales del negocio -->
         <header class="p-5 bg-white border-b border-gray-100 flex justify-between items-center sticky top-0 z-40">
-            <div class="flex items-center gap-2.5">
-                <a href="index.html" id="headerLogoBadge" class="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold text-xs italic">LS</a>
-                <div>
-                    <h1 id="headerBrandName" class="font-black text-[13px] uppercase tracking-tighter italic leading-none">PRODUCTOS LS</h1>
-                    <p id="headerSubStatus" class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">Catálogo</p>
+            <div class="flex items-center gap-2.5 min-w-0">
+                <div id="headerLogoBadge" class="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold text-xs italic shrink-0">LS</div>
+                <div class="min-w-0">
+                    <h1 id="headerBrandName" class="font-black text-[13px] uppercase tracking-tighter italic leading-none truncate">PRODUCTOS LS</h1>
+                    <p id="headerSubStatus" class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5 truncate">Catálogo</p>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <a href="admin.html" class="text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition">Admin</a>
-                <button onclick="logout()" class="text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition">Salir</button>
+            <div class="flex items-center gap-3 shrink-0">
+                <button type="button" onclick="logout()" class="text-[9px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition cursor-pointer">Salir</button>
                 <div class="relative">
                     <i data-lucide="shopping-bag" class="w-6 h-6"></i>
                     <div id="cartCountBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</div>
@@ -226,18 +339,18 @@
             </div>
         </header>
 
-        <!-- Aviso si no hay productos -->
+        <!-- Mensaje informativo cuando no hay productos del usuario -->
         <div id="catalogEmptyMsg" class="hidden p-8 text-center text-xs font-bold text-gray-400">
             No hay productos registrados en el panel de administración para esta cuenta.
         </div>
 
-        <!-- Grid de Catálogo -->
+        <!-- Cuadrícula principal de 2 columnas -->
         <div id="catalogGrid" class="product-grid"></div>
     </div>
 
-    <!-- Modal de Selección -->
+    <!-- Modal deslizable de selección de variantes -->
     <div id="productModal">
-        <button onclick="closeModal()" class="close-btn">
+        <button type="button" onclick="closeModal()" class="close-btn">
             <i data-lucide="x" class="w-5 h-5"></i>
         </button>
 
@@ -247,11 +360,12 @@
             <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-2">Elige tus favoritos</p>
         </div>
 
+        <!-- Barra de filtros por género -->
         <div class="modal-filter-bar">
-            <button onclick="filterModalVariants('todos')" id="m-btn-todos" class="filter-btn active">Todos</button>
-            <button onclick="filterModalVariants('dama')" id="m-btn-dama" class="filter-btn">Dama</button>
-            <button onclick="filterModalVariants('caballero')" id="m-btn-caballero" class="filter-btn">Caballero</button>
-            <button onclick="filterModalVariants('unisex')" id="m-btn-unisex" class="filter-btn">Unisex</button>
+            <button type="button" onclick="filterModalVariants('todos')" id="m-btn-todos" class="filter-btn active">Todos</button>
+            <button type="button" onclick="filterModalVariants('dama')" id="m-btn-dama" class="filter-btn">Dama</button>
+            <button type="button" onclick="filterModalVariants('caballero')" id="m-btn-caballero" class="filter-btn">Caballero</button>
+            <button type="button" onclick="filterModalVariants('unisex')" id="m-btn-unisex" class="filter-btn">Unisex</button>
         </div>
 
         <div class="modal-scroll">
@@ -259,13 +373,13 @@
         </div>
 
         <div class="p-6 border-t border-gray-100 bg-white">
-            <button onclick="closeModal()" class="w-full bg-black text-white py-4 rounded-xl font-black uppercase text-[11px] tracking-widest">
+            <button type="button" onclick="closeModal()" class="w-full bg-black text-white py-4 rounded-xl font-black uppercase text-[11px] tracking-widest cursor-pointer">
                 Confirmar Selección
             </button>
         </div>
     </div>
 
-    <!-- Barra de Resumen y WhatsApp -->
+    <!-- Barra inferior flotante de resumen y pedido por WhatsApp -->
     <div id="cartBar" onclick="sendOrder()">
         <div class="flex flex-col">
             <span id="cartBarCount" class="text-[9px] font-bold uppercase tracking-widest opacity-70">0 productos</span>
@@ -279,9 +393,27 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, query, where, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            signInWithPopup,
+            GoogleAuthProvider,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            onSnapshot,
+            query,
+            where,
+            doc,
+            getDoc,
+            setDoc
+        } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
+        // Configuración compartida de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
             authDomain: "apps-d45d6.firebaseapp.com",
@@ -294,8 +426,9 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
 
-        // Datos de respaldo solo para cuando se active "Modo de Prueba" sin sesión ni documentos aún
+        // Datos de ejemplo para modo de prueba cuando aún no existen documentos en Firestore
         const sampleAdminProducts = [
             {
                 id: "demo-1",
@@ -303,7 +436,7 @@
                 whatsapp: "584120000000",
                 category: "unisex",
                 description: "Selección de fragancias intensas y duraderas.",
-                img: "https://via.placeholder.com/400?text=Perfumes+Arabes",
+                img: "https://placehold.co/400x400/ffffff/000000?text=Perfumes+Arabes",
                 variants: [
                     { id: "v1", title: "Chocolate", gender: "Unisex", size: "100ml", priceOld: 45, priceNew: 32, img: "" },
                     { id: "v2", title: "Oud Noir", gender: "Caballero", size: "100ml", priceOld: 50, priceNew: 38, img: "" },
@@ -314,19 +447,34 @@
 
         let products = [];
         let cart = [];
-        let currentProduct = null;
+        let currentProductId = null;
         let currentModalFilter = 'todos';
         let unsubscribeProducts = null;
+        let unsubscribeUserDoc = null;
+        let unsubscribeBizDoc = null;
 
+        /**
+         * Normaliza enlaces de imagen y proporciona respaldo visual si falta la URL.
+         */
         const cleanUrl = (url) => {
-            if (!url) return "https://via.placeholder.com/400?text=PRODUCTOS+LS";
-            return url.trim().replace('dl=0', 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
+            if (!url || !String(url).trim()) {
+                return "https://placehold.co/400x400/ffffff/000000?text=PRODUCTOS+LS";
+            }
+            return String(url)
+                .trim()
+                .replace('dl=0', 'raw=1')
+                .replace('www.dropbox.com', 'dl.dropboxusercontent.com');
         };
 
+        /**
+         * Actualiza el nombre comercial e iniciales del encabezado.
+         */
         function updateBranding(businessName) {
             const name = (businessName || "PRODUCTOS LS").trim();
             document.getElementById('headerBrandName').innerText = name;
-            const words = name.split(/\s+/);
+            document.title = `${name} | Catálogo Multiproducto`;
+
+            const words = name.split(/\s+/).filter(Boolean);
             let initials = "LS";
             if (words.length >= 2) {
                 initials = (words[0][0] + words[1][0]).toUpperCase();
@@ -335,6 +483,130 @@
             }
             document.getElementById('headerLogoBadge').innerText = initials;
         }
+
+        /**
+         * Muestra notificaciones dentro del portal de acceso embebido.
+         */
+        function showAuthToast(message, isError = true) {
+            const toast = document.getElementById('authToast');
+            toast.innerText = message;
+            toast.className = `p-3.5 rounded-2xl text-xs font-bold text-center ${
+                isError
+                    ? 'bg-red-50 text-red-600 border border-red-100'
+                    : 'bg-green-50 text-green-600 border border-green-100'
+            }`;
+            toast.classList.remove('hidden');
+        }
+
+        window.openInlineAuth = () => {
+            document.getElementById('gateChoiceView').classList.add('hidden');
+            document.getElementById('inlineAuthView').classList.remove('hidden');
+            document.getElementById('authToast').classList.add('hidden');
+            lucide.createIcons();
+        };
+
+        window.backToChoice = () => {
+            document.getElementById('inlineAuthView').classList.add('hidden');
+            document.getElementById('gateChoiceView').classList.remove('hidden');
+            lucide.createIcons();
+        };
+
+        window.switchAuthTab = (tab) => {
+            const lBtn = document.getElementById('tabLogin');
+            const rBtn = document.getElementById('tabRegister');
+            const lForm = document.getElementById('inlineLoginForm');
+            const rForm = document.getElementById('inlineRegisterForm');
+            document.getElementById('authToast').classList.add('hidden');
+
+            if (tab === 'login') {
+                lBtn.classList.add('active');
+                lBtn.classList.remove('text-gray-500');
+                rBtn.classList.remove('active');
+                rBtn.classList.add('text-gray-500');
+                lForm.classList.remove('hidden');
+                rForm.classList.add('hidden');
+            } else {
+                rBtn.classList.add('active');
+                rBtn.classList.remove('text-gray-500');
+                lBtn.classList.remove('active');
+                lBtn.classList.add('text-gray-500');
+                rForm.classList.remove('hidden');
+                lForm.classList.add('hidden');
+            }
+        };
+
+        window.handleInlineLogin = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            try {
+                localStorage.removeItem('testMode');
+                await signInWithEmailAndPassword(auth, email, password);
+                showAuthToast("¡Sesión iniciada! Sincronizando tu catálogo...", false);
+            } catch (error) {
+                showAuthToast("Error al iniciar sesión: " + error.message, true);
+            }
+        };
+
+        window.handleInlineRegister = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const business = document.getElementById('regBusiness').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            try {
+                localStorage.removeItem('testMode');
+                const cred = await createUserWithEmailAndPassword(auth, email, password);
+                const user = cred.user;
+
+                await setDoc(doc(db, "users", user.uid), {
+                    name: name,
+                    businessName: business,
+                    email: email,
+                    createdAt: new Date().toISOString()
+                }, { merge: true });
+
+                await setDoc(doc(db, "config", "negocio"), {
+                    name: business,
+                    ownerId: user.uid
+                }, { merge: true });
+
+                showAuthToast("¡Cuenta y negocio creados!", false);
+            } catch (error) {
+                if (error.code === 'auth/email-already-in-use') {
+                    showAuthToast("Este correo ya está registrado. Por favor, inicia sesión.", true);
+                    switchAuthTab('login');
+                    document.getElementById('loginEmail').value = email;
+                } else {
+                    showAuthToast("Error en el registro: " + error.message, true);
+                }
+            }
+        };
+
+        window.handleInlineGoogleSignIn = async () => {
+            try {
+                localStorage.removeItem('testMode');
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (!userDoc.exists()) {
+                    const defaultBusiness = user.displayName ? `${user.displayName} Shop` : "Mi Catálogo";
+                    await setDoc(doc(db, "users", user.uid), {
+                        name: user.displayName || "Usuario Google",
+                        businessName: defaultBusiness,
+                        email: user.email,
+                        createdAt: new Date().toISOString()
+                    }, { merge: true });
+                    await setDoc(doc(db, "config", "negocio"), {
+                        name: defaultBusiness,
+                        ownerId: user.uid
+                    }, { merge: true });
+                }
+                showAuthToast("¡Acceso con Google exitoso!", false);
+            } catch (error) {
+                showAuthToast("Error con Google: " + error.message, true);
+            }
+        };
 
         function showAuthScreen() {
             const screen = document.getElementById('authCheckScreen');
@@ -354,6 +626,15 @@
             }, 300);
         }
 
+        function cleanupListeners() {
+            if (unsubscribeProducts) { unsubscribeProducts(); unsubscribeProducts = null; }
+            if (unsubscribeUserDoc) { unsubscribeUserDoc(); unsubscribeUserDoc = null; }
+            if (unsubscribeBizDoc) { unsubscribeBizDoc(); unsubscribeBizDoc = null; }
+        }
+
+        /**
+         * Calcula el precio principal/mínimo del producto a partir de sus variantes o campo priceNew.
+         */
         function getProductPriceText(p) {
             const variants = Array.isArray(p.variants) ? p.variants : [];
             if (variants.length > 0) {
@@ -371,11 +652,67 @@
             return '---';
         }
 
-        function listenAdminProducts(ownerId, fallbackToSample = false) {
-            if (unsubscribeProducts) {
-                unsubscribeProducts();
-                unsubscribeProducts = null;
+        /**
+         * Sincroniza los artículos del carrito con los últimos datos de productos y variantes.
+         */
+        function syncCartWithLatestProducts() {
+            const updatedCart = [];
+            cart.forEach(item => {
+                const prod = products.find(p => p.id === item.pId);
+                if (!prod) return;
+                const variants = Array.isArray(prod.variants) ? prod.variants : [];
+                const variant = variants.find(v => (v.id || (v.title + v.size)) === item.vId);
+                if (!variant) return;
+                updatedCart.push({
+                    pId: prod.id,
+                    vId: item.vId,
+                    pName: prod.name,
+                    vName: variant.title,
+                    size: variant.size,
+                    price: parseFloat(variant.priceNew) || 0,
+                    wa: (prod.whatsapp || "584120000000").replace(/\D/g, '')
+                });
+            });
+            cart = updatedCart;
+            updateCartUI();
+        }
+
+        /**
+         * Escucha cambios en tiempo real del nombre de empresa en users/{uid} y config/negocio.
+         */
+        function subscribeLiveBrand(user) {
+            if (unsubscribeUserDoc) { unsubscribeUserDoc(); unsubscribeUserDoc = null; }
+            if (unsubscribeBizDoc) { unsubscribeBizDoc(); unsubscribeBizDoc = null; }
+
+            let userHasBrand = false;
+
+            if (user) {
+                unsubscribeUserDoc = onSnapshot(doc(db, "users", user.uid), (snap) => {
+                    if (snap.exists() && snap.data().businessName) {
+                        userHasBrand = true;
+                        updateBranding(snap.data().businessName);
+                    } else {
+                        userHasBrand = false;
+                    }
+                }, (err) => {
+                    console.error("Error escuchando perfil de usuario:", err);
+                });
             }
+
+            unsubscribeBizDoc = onSnapshot(doc(db, "config", "negocio"), (snap) => {
+                if (!userHasBrand && snap.exists() && snap.data().name) {
+                    updateBranding(snap.data().name);
+                }
+            }, (err) => {
+                console.error("Error escuchando config/negocio:", err);
+            });
+        }
+
+        /**
+         * Escucha en tiempo real la colección perfumes filtrada por ownerId del usuario activo.
+         */
+        function subscribeLiveProducts(ownerId, fallbackToSample = false) {
+            if (unsubscribeProducts) { unsubscribeProducts(); unsubscribeProducts = null; }
 
             const q = ownerId
                 ? query(collection(db, "perfumes"), where("ownerId", "==", ownerId))
@@ -384,7 +721,7 @@
             unsubscribeProducts = onSnapshot(q, (snap) => {
                 const docs = snap.docs
                     .map(d => ({ id: d.id, ...d.data() }))
-                    .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+                    .sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "es", { sensitivity: "base" }));
 
                 if (docs.length > 0) {
                     products = docs;
@@ -396,58 +733,64 @@
                     products = [];
                     document.getElementById('catalogEmptyMsg').classList.remove('hidden');
                 }
+
+                syncCartWithLatestProducts();
                 renderGrid();
-            }, (err) => {
-                console.error("Error escuchando productos:", err);
-                if (fallbackToSample) {
-                    products = sampleAdminProducts;
-                    renderGrid();
+
+                // Refrescar el modal abierto al instante si cambian los datos del producto o sus variantes
+                if (currentProductId) {
+                    const activeProd = products.find(p => p.id === currentProductId);
+                    if (activeProd) {
+                        document.getElementById('modalTitle').innerText = activeProd.name || '---';
+                        const descEl = document.getElementById('modalDesc');
+                        if (activeProd.description && activeProd.description.trim()) {
+                            descEl.innerText = activeProd.description.trim();
+                            descEl.classList.remove('hidden');
+                        } else {
+                            descEl.innerText = '';
+                            descEl.classList.add('hidden');
+                        }
+                        renderVariants();
+                    } else {
+                        closeModal();
+                    }
                 }
+            }, (err) => {
+                console.error("Error sincronizando productos:", err);
             });
         }
 
-        async function loadUserOrBusinessBrand(user) {
-            try {
-                if (user) {
-                    const userDoc = await getDoc(doc(db, "users", user.uid));
-                    if (userDoc.exists() && userDoc.data().businessName) {
-                        updateBranding(userDoc.data().businessName);
-                        return;
-                    }
-                }
-                const bizDoc = await getDoc(doc(db, "config", "negocio"));
-                if (bizDoc.exists() && bizDoc.data().name) {
-                    updateBranding(bizDoc.data().name);
-                }
-            } catch (e) {
-                console.error("Error cargando empresa:", e);
-            }
-        }
-
+        // Observador de autenticación de Firebase
         onAuthStateChanged(auth, async (user) => {
             const isTestMode = localStorage.getItem('testMode') === 'true';
 
             if (!user && !isTestMode) {
-                if (unsubscribeProducts) {
-                    unsubscribeProducts();
-                    unsubscribeProducts = null;
-                }
+                cleanupListeners();
+                products = [];
+                cart = [];
+                updateCartUI();
+                renderGrid();
                 showAuthScreen();
                 lucide.createIcons();
                 return;
             }
 
             showCatalogScreen();
-            await loadUserOrBusinessBrand(user);
+            subscribeLiveBrand(user);
 
             if (user) {
                 document.getElementById('headerSubStatus').innerText = user.email || "Catálogo";
-                listenAdminProducts(user.uid, false);
+                subscribeLiveProducts(user.uid, false);
             } else {
                 document.getElementById('headerSubStatus').innerText = "Modo de Prueba";
-                const bizDoc = await getDoc(doc(db, "config", "negocio"));
-                const ownerId = bizDoc.exists() ? bizDoc.data().ownerId : null;
-                listenAdminProducts(ownerId, true);
+                try {
+                    const bizDoc = await getDoc(doc(db, "config", "negocio"));
+                    const ownerId = bizDoc.exists() ? bizDoc.data().ownerId : null;
+                    subscribeLiveProducts(ownerId, true);
+                } catch (err) {
+                    console.error("Error obteniendo configuración en modo de prueba:", err);
+                    subscribeLiveProducts(null, true);
+                }
             }
             lucide.createIcons();
         });
@@ -457,27 +800,33 @@
             showCatalogScreen();
             updateBranding("PRODUCTOS LS (MODO PRUEBA)");
             document.getElementById('headerSubStatus').innerText = "Modo de Prueba";
-            await loadUserOrBusinessBrand(null);
-            const bizDoc = await getDoc(doc(db, "config", "negocio"));
-            const ownerId = bizDoc.exists() ? bizDoc.data().ownerId : null;
-            listenAdminProducts(ownerId, true);
+            subscribeLiveBrand(null);
+            try {
+                const bizDoc = await getDoc(doc(db, "config", "negocio"));
+                const ownerId = bizDoc.exists() ? bizDoc.data().ownerId : null;
+                subscribeLiveProducts(ownerId, true);
+            } catch (err) {
+                console.error("Error activando modo de prueba:", err);
+                subscribeLiveProducts(null, true);
+            }
             lucide.createIcons();
         };
 
         window.logout = async () => {
             localStorage.removeItem('testMode');
-            if (unsubscribeProducts) {
-                unsubscribeProducts();
-                unsubscribeProducts = null;
-            }
+            cleanupListeners();
             try {
                 await signOut(auth);
             } catch (e) {
-                console.error("Error al cerrar sesión:", e);
+                console.error("Error al salir:", e);
             }
-            window.location.href = "login.html";
+            backToChoice();
+            showAuthScreen();
         };
 
+        /**
+         * Renderiza la cuadrícula principal de 2 columnas.
+         */
         function renderGrid() {
             const grid = document.getElementById('catalogGrid');
             grid.innerHTML = products.map(p => {
@@ -485,7 +834,7 @@
                 return `
                 <div class="product-card" onclick="openModal('${p.id}')">
                     ${itemsFromThisProduct > 0 ? `<div class="badge-count">${itemsFromThisProduct}</div>` : ''}
-                    <img src="${cleanUrl(p.img)}" alt="${p.name || ''}">
+                    <img src="${cleanUrl(p.img)}" alt="${p.name || ''}" onerror="this.onerror=null;this.src='https://placehold.co/400x400/ffffff/000000?text=PRODUCTOS+LS';">
                     <h3 class="text-[9px] font-black uppercase italic tracking-tighter mb-1 truncate px-2">${p.name || '---'}</h3>
                     <p class="text-[11px] font-bold text-black">${getProductPriceText(p)}</p>
                 </div>
@@ -495,13 +844,14 @@
         }
 
         window.openModal = (id) => {
-            currentProduct = products.find(p => p.id === id);
-            if (!currentProduct) return;
-            document.getElementById('modalTitle').innerText = currentProduct.name || '---';
+            const prod = products.find(p => p.id === id);
+            if (!prod) return;
+            currentProductId = id;
+            document.getElementById('modalTitle').innerText = prod.name || '---';
 
             const descEl = document.getElementById('modalDesc');
-            if (currentProduct.description && currentProduct.description.trim()) {
-                descEl.innerText = currentProduct.description.trim();
+            if (prod.description && prod.description.trim()) {
+                descEl.innerText = prod.description.trim();
                 descEl.classList.remove('hidden');
             } else {
                 descEl.innerText = '';
@@ -516,6 +866,7 @@
         };
 
         window.closeModal = () => {
+            currentProductId = null;
             const modal = document.getElementById('productModal');
             modal.classList.remove('active');
             setTimeout(() => {
@@ -533,47 +884,59 @@
         };
 
         window.toggleVariant = (vId) => {
-            const variants = Array.isArray(currentProduct.variants) ? currentProduct.variants : [];
+            const prod = products.find(p => p.id === currentProductId);
+            if (!prod) return;
+            const variants = Array.isArray(prod.variants) ? prod.variants : [];
             const variant = variants.find(v => (v.id || (v.title + v.size)) === vId);
             if (!variant) return;
 
-            const existingIndex = cart.findIndex(item => item.pId === currentProduct.id && item.vId === vId);
+            const existingIndex = cart.findIndex(item => item.pId === prod.id && item.vId === vId);
 
             if (existingIndex > -1) {
                 cart.splice(existingIndex, 1);
             } else {
                 cart.push({
-                    pId: currentProduct.id,
+                    pId: prod.id,
                     vId: vId,
-                    pName: currentProduct.name,
+                    pName: prod.name,
                     vName: variant.title,
                     size: variant.size,
                     price: parseFloat(variant.priceNew) || 0,
-                    wa: (currentProduct.whatsapp || "584120000000").replace(/\D/g, '')
+                    wa: (prod.whatsapp || "584120000000").replace(/\D/g, '')
                 });
             }
             renderVariants();
             updateCartUI();
         };
 
+        /**
+         * Renderiza las variantes del producto activo aplicando el filtro de género.
+         */
         function renderVariants() {
+            const prod = products.find(p => p.id === currentProductId);
+            if (!prod) return;
             const container = document.getElementById('variantsContainer');
-            let variants = Array.isArray(currentProduct.variants) ? currentProduct.variants : [];
+            let variants = Array.isArray(prod.variants) ? prod.variants : [];
 
             if (currentModalFilter !== 'todos') {
                 variants = variants.filter(v => (v.gender || '').toLowerCase() === currentModalFilter);
             }
 
+            if (variants.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs font-bold text-gray-400 py-8">No hay variantes en esta categoría.</p>`;
+                return;
+            }
+
             container.innerHTML = variants.map(v => {
                 const vId = v.id || (v.title + v.size);
-                const isSelected = cart.some(item => item.pId === currentProduct.id && item.vId === vId);
+                const isSelected = cart.some(item => item.pId === prod.id && item.vId === vId);
                 const priceNewNum = parseFloat(v.priceNew) || 0;
                 const priceOldNum = parseFloat(v.priceOld);
                 const hasOldPrice = !Number.isNaN(priceOldNum) && priceOldNum > priceNewNum;
 
                 return `
                 <div class="variant-card ${isSelected ? 'selected' : ''}" onclick="toggleVariant('${vId}')">
-                    <img src="${cleanUrl(v.img || currentProduct.img)}" class="w-12 h-12 object-contain rounded-lg" alt="${v.title || ''}">
+                    <img src="${cleanUrl(v.img || prod.img)}" class="w-12 h-12 object-contain rounded-lg" alt="${v.title || ''}" onerror="this.onerror=null;this.src='https://placehold.co/120x120/ffffff/000000?text=LS';">
                     <div class="flex-1">
                         <h4 class="font-black italic uppercase text-[10px] leading-tight">${v.title || ''}</h4>
                         <div class="flex gap-2 items-center mt-0.5">
@@ -591,6 +954,9 @@
             }).join('');
         }
 
+        /**
+         * Actualiza la barra inferior flotante y el contador de productos seleccionados.
+         */
         function updateCartUI() {
             const total = cart.reduce((sum, item) => sum + item.price, 0);
             const count = cart.length;
@@ -610,6 +976,9 @@
             lucide.createIcons();
         }
 
+        /**
+         * Envía el pedido consolidado por WhatsApp.
+         */
         window.sendOrder = () => {
             if (cart.length === 0) return;
 
