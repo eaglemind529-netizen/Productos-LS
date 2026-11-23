@@ -3,108 +3,386 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PRODUCTOS LS | Catálogo & Gestión</title>
+    <title>PRODUCTOS LS | Catálogo & Acceso</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f9f9f9; }
-        .card { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #ffffff;
+            color: #000;
+            overflow-x: hidden;
+        }
+
+        /* Estilos del portal de autenticación */
+        .auth-bg {
+            background-color: #f9f9f9;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.06);
+        }
+
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background-color: #000;
+            color: #fff;
+        }
+
+        /* Estilos del catálogo multiproducto */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            background-color: #f3f4f6;
+        }
+
+        .product-card {
+            background: white;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .badge-count {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #000;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        .product-card img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: contain;
+            margin-bottom: 8px;
+        }
+
+        /* Modal */
+        #productModal {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #productModal.active {
+            display: flex;
+            transform: translateY(0);
+        }
+
+        .modal-filter-bar {
+            display: flex;
+            padding: 10px;
+            gap: 6px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #fff;
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .modal-filter-bar::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+        .filter-btn {
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #999;
+            background: #f9f9f9;
+            white-space: nowrap;
+            border: 1px solid transparent;
+        }
+
+        .filter-btn.active {
+            background: #000;
+            color: #fff;
+            border-color: #000;
+        }
+
+        .modal-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        /* Variante Card */
+        .variant-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #fff;
+            border-radius: 18px;
+            border: 2px solid #f0f0f0;
+            margin-bottom: 10px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .variant-card.selected {
+            border-color: #000;
+            background: #fafafa;
+        }
+
+        .selector-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .variant-card.selected .selector-dot {
+            border-color: #000;
+            background: #000;
+        }
+
+        .variant-card.selected .selector-dot::after {
+            content: '';
+            width: 7px;
+            height: 7px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        /* Barra de Carrito */
+        #cartBar {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #000;
+            color: white;
+            padding: 16px 22px;
+            border-radius: 20px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1100;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+            cursor: pointer;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 1010;
+            background: #f0f0f0;
+            border-radius: 50%;
+            padding: 8px;
+        }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-32">
 
-    <!-- Pantalla de control si no hay sesión -->
-    <div id="authCheckScreen" class="fixed inset-0 bg-white z-50 flex items-center justify-center p-6 transition-opacity duration-300">
-        <div class="max-w-md w-full card text-center space-y-6">
-            <div class="w-16 h-16 bg-black rounded-2xl flex items-center justify-center text-white font-black italic mx-auto text-xl shadow-xl">LS</div>
-            <div class="space-y-2">
-                <h2 class="text-xl font-black uppercase italic tracking-wider">Acceso Requerido</h2>
-                <p class="text-xs text-gray-500 font-bold">Inicia sesión con tu cuenta o activa el modo de prueba para visualizar el panel.</p>
+    <!-- Portal de Autenticación (visible cuando no hay sesión iniciada) -->
+    <section id="authView" class="auth-bg flex items-center justify-center p-6">
+        <div class="w-full max-w-md space-y-6">
+            <!-- Logo Header -->
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-white font-black italic mx-auto text-lg shadow-xl">LS</div>
+                <h1 class="text-xl font-black uppercase italic tracking-wider">PRODUCTOS LS</h1>
+                <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Portal de Autenticación</p>
             </div>
-            <div class="space-y-3">
-                <a href="login.html" class="block w-full bg-black text-white py-4 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg hover:bg-gray-800 transition">
-                    Ir al Login
-                </a>
-                <button onclick="enableTestMode()" class="w-full bg-gray-100 hover:bg-gray-200 text-black py-3.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition">
-                    Activar Modo de Prueba
+
+            <!-- Notificación / Error Toast -->
+            <div id="toast" class="hidden p-4 rounded-2xl text-xs font-bold text-center transition-all"></div>
+
+            <!-- Contenedor Principal / Tarjeta -->
+            <div class="card">
+                <!-- Pestañas (Tabs) -->
+                <div class="grid grid-cols-2 gap-2 bg-gray-100 p-1.5 rounded-2xl mb-6">
+                    <button type="button" onclick="switchTab('login')" id="tabLogin" class="tab-btn active py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider">Iniciar Sesión</button>
+                    <button type="button" onclick="switchTab('register')" id="tabRegister" class="tab-btn py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider text-gray-500">Registrarse</button>
+                </div>
+
+                <!-- Formulario de Inicio de Sesión -->
+                <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Correo Electrónico</label>
+                        <input type="email" id="loginEmail" required placeholder="correo@ejemplo.com" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Contraseña</label>
+                        <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
+                    </div>
+                    <button type="submit" class="w-full bg-black text-white py-4 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg hover:bg-gray-800 transition">
+                        Ingresar al Sistema
+                    </button>
+                </form>
+
+                <!-- Formulario de Registro -->
+                <form id="registerForm" onsubmit="handleRegister(event)" class="space-y-4 hidden">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Nombre Completo</label>
+                        <input type="text" id="regName" required placeholder="Tu Nombre" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Nombre del Negocio</label>
+                        <input type="text" id="regBusiness" required placeholder="Ej: PRODUCTOS LS" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Correo Electrónico</label>
+                        <input type="email" id="regEmail" required placeholder="correo@ejemplo.com" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-400 tracking-wider">Contraseña</label>
+                        <input type="password" id="regPassword" required placeholder="••••••••" class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold outline-none focus:border-black transition">
+                    </div>
+                    <button type="submit" class="w-full bg-black text-white py-4 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg hover:bg-gray-800 transition">
+                        Crear Cuenta y Negocio
+                    </button>
+                </form>
+
+                <!-- Separador -->
+                <div class="relative flex py-5 items-center">
+                    <div class="flex-grow border-t border-gray-100"></div>
+                    <span class="flex-shrink mx-4 text-[9px] font-bold text-gray-400 uppercase tracking-widest">O continúa con</span>
+                    <div class="flex-grow border-t border-gray-100"></div>
+                </div>
+
+                <!-- Botón Google -->
+                <button type="button" onclick="handleGoogleSignIn()" class="w-full flex items-center justify-center gap-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-black py-3.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                    </svg>
+                    Google
                 </button>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Dashboard Principal -->
-    <div id="mainDashboard" class="opacity-0 transition-opacity duration-300">
+    <!-- Catálogo Multiproducto (visible cuando hay sesión iniciada) -->
+    <section id="catalogView" class="hidden">
         <!-- Header -->
-        <header class="p-6 flex justify-between items-center bg-white border-b border-gray-100 sticky top-0 z-40">
-            <div class="flex items-center gap-3">
-                <div id="headerLogoInitials" class="w-10 h-10 bg-black rounded-xl flex items-center justify-center text-white font-black italic shadow-md">LS</div>
-                <div>
-                    <h1 id="headerCompanyName" class="text-[13px] font-black uppercase italic">PRODUCTOS LS</h1>
-                    <p class="text-[10px] text-gray-500 font-bold tracking-wider">Catálogo & Gestión</p>
+        <header class="p-5 bg-white border-b border-gray-100 flex justify-between items-center sticky top-0 z-40">
+            <div class="flex items-center gap-2 min-w-0">
+                <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold text-xs italic shrink-0">LS</div>
+                <div class="min-w-0">
+                    <h1 id="catalogHeaderTitle" class="font-black text-[13px] uppercase tracking-tighter italic truncate">PRODUCTOS LS</h1>
+                    <p id="activeUserIndicator" class="text-[9px] font-bold text-gray-500 truncate">Usuario activo</p>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <button onclick="logout()" class="flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-xl transition">
-                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                    <span>Salir</span>
+            <div class="flex items-center gap-3 shrink-0">
+                <button type="button" onclick="handleLogout()" class="text-[10px] font-black uppercase tracking-wider px-3 py-1.5 rounded-lg border border-black text-black hover:bg-black hover:text-white transition">
+                    Salir
                 </button>
+                <div class="relative">
+                    <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                    <div id="cartCountBadge" class="hidden absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</div>
+                </div>
             </div>
         </header>
 
-        <main class="p-6 space-y-6 max-w-4xl mx-auto">
-            <!-- Banner / Portada Promocional -->
-            <div class="card bg-black text-white p-8 shadow-2xl relative overflow-hidden">
-                <div class="relative z-10">
-                    <span class="inline-block px-3 py-1 bg-white/10 rounded-full text-[9px] font-black uppercase tracking-widest mb-4">
-                        Colección Oficial
-                    </span>
-                    <h2 class="text-3xl font-black italic uppercase leading-tight mb-2">
-                        Explora Nuestro Catálogo
-                    </h2>
-                    <p class="text-xs text-gray-300 font-normal leading-relaxed mb-6 max-w-md">
-                        Descubre la selección exclusiva de productos disponibles. Calidad, estilo y atención personalizada en un solo lugar.
-                    </p>
-                    <a href="catalogo.html" class="inline-flex items-center gap-2 bg-white text-black px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-wider hover:bg-gray-100 transition">
-                        <span>Ver Catálogo Completo</span>
-                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                    </a>
-                </div>
-            </div>
+        <!-- Estado de carga o ausencia de productos del usuario -->
+        <div id="catalogStatusMessage" class="hidden p-8 text-center text-xs font-bold text-gray-500"></div>
 
-            <!-- Panel de Accesos para Dueños del Catálogo -->
-            <div class="card">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-[11px] font-black uppercase tracking-widest">Accesos Rápidos</h3>
-                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Administración</span>
-                </div>
-                
-                <div id="adminAccessGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <a href="catalogo.html" class="bg-gray-50 hover:bg-gray-100 transition p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border border-gray-100 text-center">
-                        <div class="w-10 h-10 bg-black text-white rounded-xl flex items-center justify-center shadow-md">
-                            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                        </div>
-                        <span class="text-[10px] font-black uppercase tracking-wider mt-1">Catálogo Público</span>
-                        <span class="text-[9px] text-gray-500 font-bold">Ver tienda</span>
-                    </a>
+        <!-- Grid de Catálogo -->
+        <div id="catalogGrid" class="product-grid"></div>
+    </section>
 
-                    <a href="admin.html" class="bg-black hover:bg-gray-900 text-white transition p-5 rounded-2xl flex flex-col items-center justify-center gap-2 border border-black text-center shadow-sm">
-                        <div class="w-10 h-10 bg-white text-black rounded-xl flex items-center justify-center shadow-md">
-                            <i data-lucide="settings" class="w-5 h-5"></i>
-                        </div>
-                        <span class="text-[10px] font-black uppercase tracking-wider mt-1">Panel de Gestión</span>
-                        <span class="text-[9px] text-gray-300 font-bold">Productos y Variantes</span>
-                    </a>
-                </div>
-            </div>
-        </main>
+    <!-- Modal de Selección -->
+    <div id="productModal">
+        <button type="button" onclick="closeModal()" class="close-btn">
+            <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+
+        <div class="pt-14 px-6 pb-4">
+            <h2 id="modalTitle" class="text-2xl font-black italic uppercase leading-none mb-1">---</h2>
+            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-[0.2em]">Elige tus favoritos</p>
+        </div>
+
+        <div class="modal-filter-bar">
+            <button type="button" onclick="filterModalVariants('todos')" id="m-btn-todos" class="filter-btn active">Todos</button>
+            <button type="button" onclick="filterModalVariants('dama')" id="m-btn-dama" class="filter-btn">Dama</button>
+            <button type="button" onclick="filterModalVariants('caballero')" id="m-btn-caballero" class="filter-btn">Caballero</button>
+            <button type="button" onclick="filterModalVariants('unisex')" id="m-btn-unisex" class="filter-btn">Unisex</button>
+        </div>
+
+        <div class="modal-scroll">
+            <div id="variantsContainer"></div>
+        </div>
+
+        <div class="p-6 border-t border-gray-100 bg-white">
+            <button type="button" onclick="closeModal()" class="w-full bg-black text-white py-4 rounded-xl font-black uppercase text-[11px] tracking-widest">
+                Confirmar Selección
+            </button>
+        </div>
+    </div>
+
+    <!-- Barra de Resumen y WhatsApp -->
+    <div id="cartBar" onclick="sendOrder()">
+        <div class="flex flex-col">
+            <span id="cartBarCount" class="text-[9px] font-bold uppercase tracking-widest opacity-70">0 productos</span>
+            <span id="cartBarTotal" class="text-base font-black italic">$0</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-[10px] font-black uppercase italic tracking-wider">Hacer pedido</span>
+            <i data-lucide="send" class="w-4 h-4"></i>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+        import {
+            getAuth,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            signInWithPopup,
+            GoogleAuthProvider,
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            setDoc,
+            getDoc,
+            collection,
+            onSnapshot,
+            query,
+            where
+        } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
+        // Configuración única de Firebase compartida entre autenticación y catálogo
         const firebaseConfig = {
             apiKey: "AIzaSyCrjjeOoXPOtJDXDfrHLOA4Ny0QW2zfVWk",
             authDomain: "apps-d45d6.firebaseapp.com",
@@ -117,76 +395,428 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
 
-        function updateBranding(businessName) {
-            document.getElementById('headerCompanyName').innerText = businessName;
-            const words = businessName.trim().split(/\s+/);
-            let initials = "LS";
-            if (words.length >= 2) {
-                initials = (words[0][0] + words[1][0]).toUpperCase();
-            } else if (words.length === 1 && words[0].length >= 2) {
-                initials = words[0].substring(0, 2).toUpperCase();
-            }
-            document.getElementById('headerLogoInitials').innerText = initials;
+        let currentUser = null;
+        let currentUserProfile = null;
+        let products = [];
+        let cart = [];
+        let currentProduct = null;
+        let currentModalFilter = 'todos';
+
+        // Mapas para unificar resultados por campo de propiedad del usuario en 'perfumes'
+        let unsubscribeQueries = [];
+        let queryResultsMap = new Map();
+
+        const cleanUrl = (url) => {
+            if (!url) return "https://via.placeholder.com/400?text=PRODUCTOS+LS";
+            return url.trim().replace('dl=0', 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
+        };
+
+        function showToast(message, isError = true) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.className = `p-4 rounded-2xl text-xs font-bold text-center transition-all ${
+                isError
+                    ? 'bg-red-50 text-red-600 border border-red-100'
+                    : 'bg-green-50 text-green-600 border border-green-100'
+            }`;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 4000);
         }
 
-        // Verificación de autenticación robusta
-        onAuthStateChanged(auth, async (user) => {
-            const isTestMode = localStorage.getItem('testMode') === 'true';
+        window.switchTab = (tab) => {
+            const lBtn = document.getElementById('tabLogin');
+            const rBtn = document.getElementById('tabRegister');
+            const lForm = document.getElementById('loginForm');
+            const rForm = document.getElementById('registerForm');
 
-            if (!user && !isTestMode) {
-                // Si no hay sesión ni modo prueba, muestra la pantalla para ir al login
-                document.getElementById('authCheckScreen').style.opacity = '1';
-                document.getElementById('authCheckScreen').style.display = 'flex';
-                document.getElementById('mainDashboard').style.opacity = '0';
-                lucide.createIcons();
+            if (tab === 'login') {
+                lBtn.classList.add('active');
+                lBtn.classList.remove('text-gray-500');
+                rBtn.classList.remove('active');
+                rBtn.classList.add('text-gray-500');
+                lForm.classList.remove('hidden');
+                rForm.classList.add('hidden');
+            } else {
+                rBtn.classList.add('active');
+                rBtn.classList.remove('text-gray-500');
+                lBtn.classList.remove('active');
+                lBtn.classList.add('text-gray-500');
+                rForm.classList.remove('hidden');
+                lForm.classList.add('hidden');
+            }
+        };
+
+        // Guarda o recupera el perfil del usuario en Firestore ('users/{uid}')
+        async function ensureUserProfile(user, extraData = {}) {
+            const userRef = doc(db, "users", user.uid);
+            const snap = await getDoc(userRef);
+
+            if (snap.exists()) {
+                const existing = snap.data();
+                const updatedData = {
+                    uid: user.uid,
+                    email: user.email || existing.email || "",
+                    name: extraData.name || existing.name || user.displayName || "",
+                    businessName: extraData.businessName || existing.businessName || (user.displayName ? `${user.displayName} Shop` : "PRODUCTOS LS")
+                };
+                await setDoc(userRef, updatedData, { merge: true });
+                return updatedData;
+            } else {
+                const newProfile = {
+                    uid: user.uid,
+                    email: user.email || "",
+                    name: extraData.name || user.displayName || "Usuario",
+                    businessName: extraData.businessName || (user.displayName ? `${user.displayName} Shop` : "PRODUCTOS LS"),
+                    createdAt: new Date().toISOString()
+                };
+                await setDoc(userRef, newProfile);
+                return newProfile;
+            }
+        }
+
+        function updateCatalogIdentity(user, profile) {
+            const businessName = (profile && profile.businessName) ? profile.businessName : "PRODUCTOS LS";
+            document.getElementById('catalogHeaderTitle').innerText = businessName;
+            document.title = `${businessName} | Catálogo Multiproducto`;
+
+            const userLabel = (profile && profile.name)
+                ? `${profile.name} (${user.email || user.uid})`
+                : (user.email || user.uid);
+            document.getElementById('activeUserIndicator').innerText = userLabel;
+        }
+
+        function stopProductListeners() {
+            unsubscribeQueries.forEach((unsub) => {
+                if (typeof unsub === 'function') unsub();
+            });
+            unsubscribeQueries = [];
+            queryResultsMap.clear();
+        }
+
+        function mergeAndRenderUserProducts() {
+            const mergedById = new Map();
+            queryResultsMap.forEach((docsMap) => {
+                docsMap.forEach((data, docId) => {
+                    mergedById.set(docId, { id: docId, ...data });
+                });
+            });
+
+            products = Array.from(mergedById.values()).sort((a, b) =>
+                String(a.name || "").localeCompare(String(b.name || ""), "es", { sensitivity: "base" })
+            );
+
+            // Limpiar artículos del carrito que ya no pertenezcan a los productos cargados del usuario
+            const validProductIds = new Set(products.map((p) => p.id));
+            cart = cart.filter((item) => validProductIds.has(item.pId));
+            updateCartUI();
+
+            const statusEl = document.getElementById('catalogStatusMessage');
+            if (!currentUser) {
+                statusEl.innerText = "Debes iniciar sesión para ver tus productos.";
+                statusEl.classList.remove('hidden');
+            } else if (products.length === 0) {
+                statusEl.innerText = "No hay productos registrados para este usuario.";
+                statusEl.classList.remove('hidden');
+            } else {
+                statusEl.innerText = "";
+                statusEl.classList.add('hidden');
+            }
+
+            renderGrid();
+        }
+
+        // Suscribe consultas en 'perfumes' filtradas por el usuario autenticado
+        function subscribeToUserProducts(user) {
+            stopProductListeners();
+            if (!user) {
+                products = [];
+                mergeAndRenderUserProducts();
                 return;
             }
 
-            // Ocultar pantalla de bloqueo y mostrar dashboard
-            document.getElementById('authCheckScreen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('authCheckScreen').style.display = 'none';
-                document.getElementById('mainDashboard').style.opacity = '1';
-            }, 300);
+            const perfumesCol = collection(db, "perfumes");
+            const filters = [
+                { key: "userId", value: user.uid },
+                { key: "uid", value: user.uid },
+                { key: "ownerId", value: user.uid }
+            ];
 
-            try {
-                if (user) {
-                    const userDoc = await getDoc(doc(db, "users", user.uid));
-                    if (userDoc.exists() && userDoc.data().businessName) {
-                        updateBranding(userDoc.data().businessName);
-                        return;
-                    }
-                }
-                const businessDoc = await getDoc(doc(db, "config", "negocio"));
-                if (businessDoc.exists() && businessDoc.data().name) {
-                    updateBranding(businessDoc.data().name);
-                }
-            } catch (e) {
-                console.error("Error cargando perfil:", e);
+            if (user.email) {
+                filters.push({ key: "email", value: user.email });
             }
 
-            lucide.createIcons();
-        });
+            filters.forEach(({ key, value }) => {
+                const mapKey = `${key}:${value}`;
+                queryResultsMap.set(mapKey, new Map());
 
-        window.enableTestMode = () => {
-            localStorage.setItem('testMode', 'true');
-            document.getElementById('authCheckScreen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('authCheckScreen').style.display = 'none';
-                document.getElementById('mainDashboard').style.opacity = '1';
-            }, 300);
-            updateBranding("PRODUCTOS LS (MODO PRUEBA)");
+                const q = query(perfumesCol, where(key, "==", value));
+                const unsub = onSnapshot(
+                    q,
+                    (snap) => {
+                        const docMap = new Map();
+                        snap.forEach((d) => docMap.set(d.id, d.data()));
+                        queryResultsMap.set(mapKey, docMap);
+                        mergeAndRenderUserProducts();
+                    },
+                    (err) => {
+                        console.error(`Error consultando perfumes por ${key}:`, err);
+                    }
+                );
+
+                unsubscribeQueries.push(unsub);
+            });
+        }
+
+        window.handleLogin = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const cred = await signInWithEmailAndPassword(auth, email, password);
+                await ensureUserProfile(cred.user);
+                showToast("¡Inicio de sesión exitoso!", false);
+            } catch (error) {
+                showToast("Error al iniciar sesión: " + error.message);
+            }
         };
 
-        window.logout = async () => {
-            localStorage.removeItem('testMode');
+        window.handleRegister = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const business = document.getElementById('regBusiness').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, password);
+                await ensureUserProfile(cred.user, {
+                    name: name,
+                    businessName: business
+                });
+                showToast("¡Cuenta y negocio creados con éxito!", false);
+            } catch (error) {
+                if (error.code === 'auth/email-already-in-use') {
+                    showToast("Este correo ya está registrado. Por favor, inicia sesión.");
+                    switchTab('login');
+                    document.getElementById('loginEmail').value = email;
+                } else {
+                    showToast("Error en el registro: " + error.message);
+                }
+            }
+        };
+
+        window.handleGoogleSignIn = async () => {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                await ensureUserProfile(result.user);
+                showToast("¡Acceso con Google exitoso!", false);
+            } catch (error) {
+                showToast("Error con Google: " + error.message);
+            }
+        };
+
+        window.handleLogout = async () => {
             try {
                 await signOut(auth);
             } catch (error) {
                 console.error("Error al cerrar sesión:", error);
             }
-            window.location.href = "login.html";
+        };
+
+        // Observador central de sesión: muestra login sin sesión y catálogo al autenticarse
+        onAuthStateChanged(auth, async (user) => {
+            const authView = document.getElementById('authView');
+            const catalogView = document.getElementById('catalogView');
+            const statusEl = document.getElementById('catalogStatusMessage');
+
+            stopProductListeners();
+            cart = [];
+            updateCartUI();
+
+            if (!user) {
+                currentUser = null;
+                currentUserProfile = null;
+                products = [];
+                renderGrid();
+                catalogView.classList.add('hidden');
+                authView.classList.remove('hidden');
+                lucide.createIcons();
+                return;
+            }
+
+            currentUser = user;
+            authView.classList.add('hidden');
+            catalogView.classList.remove('hidden');
+            statusEl.innerText = "Cargando productos del usuario...";
+            statusEl.classList.remove('hidden');
+
+            try {
+                currentUserProfile = await ensureUserProfile(user);
+            } catch (err) {
+                console.error("Error obteniendo perfil de usuario:", err);
+                currentUserProfile = {
+                    uid: user.uid,
+                    email: user.email || "",
+                    businessName: "PRODUCTOS LS"
+                };
+            }
+
+            updateCatalogIdentity(user, currentUserProfile);
+            subscribeToUserProducts(user);
+            lucide.createIcons();
+        });
+
+        // Dibujar el catálogo principal
+        function renderGrid() {
+            const grid = document.getElementById('catalogGrid');
+            grid.innerHTML = products.map(p => {
+                const itemsFromThisProduct = cart.filter(item => item.pId === p.id).length;
+                return `
+                <div class="product-card" onclick="openModal('${p.id}')">
+                    ${itemsFromThisProduct > 0 ? `<div class="badge-count">${itemsFromThisProduct}</div>` : ''}
+                    <img src="${cleanUrl(p.img)}" alt="${p.name || ''}">
+                    <h3 class="text-[9px] font-black uppercase italic tracking-tighter mb-1 truncate px-2">${p.name || ''}</h3>
+                    <p class="text-[11px] font-bold text-black">$${p.priceNew || '---'}</p>
+                </div>
+            `}).join('');
+            lucide.createIcons();
+        }
+
+        // Abrir detalles de producto
+        window.openModal = (id) => {
+            currentProduct = products.find(p => p.id === id);
+            if (!currentProduct) return;
+            document.getElementById('modalTitle').innerText = currentProduct.name || '---';
+            const modal = document.getElementById('productModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
+            filterModalVariants('todos');
+            document.body.style.overflow = 'hidden';
+        };
+
+        // Cerrar modal
+        window.closeModal = () => {
+            const modal = document.getElementById('productModal');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                renderGrid();
+            }, 400);
+        };
+
+        // Filtro dentro del modal
+        window.filterModalVariants = (cat) => {
+            currentModalFilter = cat;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`m-btn-${cat}`).classList.add('active');
+            renderVariants();
+        };
+
+        // Alternar selección de variante (tocar para añadir, tocar para quitar)
+        window.toggleVariant = (vId) => {
+            if (!currentProduct || !Array.isArray(currentProduct.variants)) return;
+            const variant = currentProduct.variants.find(v => (v.id || (v.title + v.size)) === vId);
+            if (!variant) return;
+
+            const existingIndex = cart.findIndex(item => item.pId === currentProduct.id && item.vId === vId);
+
+            if (existingIndex > -1) {
+                cart.splice(existingIndex, 1);
+            } else {
+                cart.push({
+                    pId: currentProduct.id,
+                    vId: vId,
+                    pName: currentProduct.name,
+                    vName: variant.title,
+                    size: variant.size,
+                    price: parseFloat(variant.priceNew) || 0,
+                    wa: currentProduct.whatsapp || (currentUserProfile && currentUserProfile.whatsapp) || "584120000000"
+                });
+            }
+            renderVariants();
+            updateCartUI();
+        };
+
+        // Dibujar las variantes en el modal
+        function renderVariants() {
+            const container = document.getElementById('variantsContainer');
+            if (!currentProduct) {
+                container.innerHTML = '';
+                return;
+            }
+            let variants = currentProduct.variants || [];
+
+            if (currentModalFilter !== 'todos') {
+                variants = variants.filter(v => (v.gender || '').toLowerCase() === currentModalFilter);
+            }
+
+            container.innerHTML = variants.map(v => {
+                const vId = v.id || (v.title + v.size);
+                const isSelected = cart.some(item => item.pId === currentProduct.id && item.vId === vId);
+
+                return `
+                <div class="variant-card ${isSelected ? 'selected' : ''}" onclick="toggleVariant('${vId}')">
+                    <img src="${cleanUrl(v.img || currentProduct.img)}" alt="${v.title || ''}" class="w-12 h-12 object-contain rounded-lg">
+                    <div class="flex-1">
+                        <h4 class="font-black italic uppercase text-[10px] leading-tight">${v.title || ''}</h4>
+                        <div class="flex gap-2 items-center mt-0.5">
+                            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">${v.size || ''}</span>
+                            <span class="text-[8px] font-extrabold px-1.5 py-0.5 bg-gray-100 rounded text-gray-600 uppercase">${v.gender || 'Unisex'}</span>
+                        </div>
+                        <p class="text-sm font-black mt-1">$${v.priceNew || '---'}</p>
+                    </div>
+                    <div class="selector-dot"></div>
+                </div>
+            `}).join('');
+        }
+
+        // Actualizar la barra negra de abajo
+        function updateCartUI() {
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            const count = cart.length;
+            const bar = document.getElementById('cartBar');
+            const badge = document.getElementById('cartCountBadge');
+
+            if (count > 0) {
+                bar.style.display = 'flex';
+                badge.innerText = count;
+                badge.classList.remove('hidden');
+                document.getElementById('cartBarCount').innerText = `${count} ${count === 1 ? 'producto' : 'productos'} seleccionado(s)`;
+                document.getElementById('cartBarTotal').innerText = `$${total.toFixed(2)}`;
+            } else {
+                bar.style.display = 'none';
+                badge.classList.add('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        // Enviar pedido consolidado por WhatsApp
+        window.sendOrder = () => {
+            if (cart.length === 0) return;
+
+            const targetPhone = cart[0].wa;
+            const businessLabel = (currentUserProfile && currentUserProfile.businessName)
+                ? currentUserProfile.businessName
+                : "PRODUCTOS LS";
+
+            let message = `¡Hola! 👋 Quisiera comprar estos perfumes en *${businessLabel}*:\n\n`;
+
+            cart.forEach((item) => {
+                message += `🔹 *${item.pName}*\n`;
+                message += `   Variante: ${item.vName} (${item.size})\n`;
+                message += `   Precio: $${item.price}\n\n`;
+            });
+
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            message += `━━━━━━━━━━━━━━\n`;
+            message += `✅ *TOTAL DEL PEDIDO: $${total.toFixed(2)}*\n\n`;
+            message += `¿Están disponibles?`;
+
+            window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(message)}`, '_blank');
         };
 
         lucide.createIcons();
